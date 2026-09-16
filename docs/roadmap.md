@@ -373,7 +373,7 @@ Inspect the repository and requirements first. Implement only Phase 6 telecom AP
 
 ## Phase 7 — National Address validators
 
-> **Phase status:** ⬜ Not started
+> **Phase status:** ✅ Complete
 
 ### Objective
 
