@@ -91,3 +91,12 @@ The [CST National Numbering Plan](https://www.cst.gov.sa/en/regulations-and-lice
 - **Output:** canonical `+966...` for mobile and landline numbers, or canonical national `800...` for toll-free numbers, together with the structurally validated phone kind.
 - **Rejected:** whitespace, punctuation, extensions, Unicode digits, malformed or duplicated country codes, unsupported service prefixes, and international-looking toll-free forms. Normalization does not guess a phone kind and revalidates its canonical output.
 - **Limitation:** normalization changes representation only. It adds no evidence of allocation, subscriber identity, activation, reachability, geography of a specific subscriber, or current carrier.
+
+## National Address validators
+
+The [SPL National Address service](https://splonline.com.sa/en/door-step/) is the official structural source for these validators. SPL uses both “additional number” and “secondary number” terminology for the same four-digit address component. All National Address APIs have the `official-structural` evidence level and perform no checksum validation.
+
+- **Supported components:** postal codes are exactly 5 ASCII digits; building numbers and additional/secondary numbers are exactly 4 ASCII digits. Leading zeroes are preserved.
+- **Short Address:** the validated representation is exactly 4 uppercase ASCII letters followed immediately by 4 ASCII digits. Explicit normalization additionally accepts ASCII lowercase letters and either no separator or exactly one ASCII space between the letter and digit groups; it uppercases the letters and removes that optional separator.
+- **National Address object:** validation requires own data properties for the building number, street, district, city, postal code, and additional number. It checks completeness and the documented representation only. Text fields must be primitive non-empty strings but are not trimmed, normalized, or restricted by language or character set.
+- **Limitation:** passing does not prove address existence, allocation, spelling, municipality, geolocation, deliverability, or any relationship between fields. It is not authoritative SPL verification.
