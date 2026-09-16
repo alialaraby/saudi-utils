@@ -26,6 +26,16 @@ export {
   validateSaudiId,
 } from "./identity.js";
 
+export {
+  isLandlineNumber,
+  isMobileNumber,
+  isTollFreeNumber,
+  normalizePhoneNumber,
+  validateLandlineNumber,
+  validateMobileNumber,
+  validateTollFreeNumber,
+} from "./telecom.js";
+
 export type {
   NationalAddress,
   NationalAddressValidationResult,
