@@ -4,6 +4,17 @@ export const bootstrapSmokeTest = (): true => true;
 export { formatIban, isSaudiIban, normalizeIban, validateSaudiIban } from "./banking.js";
 
 export {
+  isCommercialRegistration,
+  isTin,
+  isUnifiedNationalNumber,
+  isVatNumber,
+  validateCommercialRegistration,
+  validateTin,
+  validateUnifiedNationalNumber,
+  validateVatNumber,
+} from "./business.js";
+
+export {
   getSaudiIdType,
   isBorderId,
   isIqama,
