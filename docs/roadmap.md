@@ -64,7 +64,7 @@ flowchart LR
 |     1 | Repository bootstrap                   |  ✅ Complete   | Install, build, test, lint, format-check, typecheck pass |
 |     2 | Shared validation primitives           |  ✅ Complete   | Result/error behavior and internal helpers fully tested  |
 |     3 | Identity                               |  ✅ Complete   | National ID, Iqama, Saudi ID/type, Border ID pass        |
-|     4 | IBAN                                   | ⬜ Not started | Structure, MOD-97, normalize, format pass                |
+|     4 | IBAN                                   |  ✅ Complete   | Structure, MOD-97, normalize, format pass                |
 |     5 | Business/tax                           | ⬜ Not started | VAT, TIN, UNN, legacy CR pass                            |
 |     6 | Telecom                                | ⬜ Not started | Mobile, landline, toll-free, normalize pass              |
 |     7 | National Address                       | ⬜ Not started | Components, Short Address, object validation pass        |
@@ -256,7 +256,7 @@ Inspect the repository, requirements, evidence notes, and prior tests first. Imp
 
 ## Phase 4 — Saudi IBAN
 
-> **Phase status:** ⬜ Not started
+> **Phase status:** ✅ Complete
 
 ### Objective
 
