@@ -63,7 +63,7 @@ flowchart LR
 |     0 | Final technical and evidence decisions |  ✅ Complete   | Requirements and roadmap freeze package-level choices    |
 |     1 | Repository bootstrap                   |  ✅ Complete   | Install, build, test, lint, format-check, typecheck pass |
 |     2 | Shared validation primitives           |  ✅ Complete   | Result/error behavior and internal helpers fully tested  |
-|     3 | Identity                               | ⬜ Not started | National ID, Iqama, Saudi ID/type, Border ID pass        |
+|     3 | Identity                               |  ✅ Complete   | National ID, Iqama, Saudi ID/type, Border ID pass        |
 |     4 | IBAN                                   | ⬜ Not started | Structure, MOD-97, normalize, format pass                |
 |     5 | Business/tax                           | ⬜ Not started | VAT, TIN, UNN, legacy CR pass                            |
 |     6 | Telecom                                | ⬜ Not started | Mobile, landline, toll-free, normalize pass              |
@@ -214,7 +214,7 @@ Inspect the repository, requirements, and completed phases first. Implement only
 
 ## Phase 3 — Identity validators
 
-> **Phase status:** ⬜ Not started
+> **Phase status:** ✅ Complete
 
 ### Objective
 
