@@ -1,0 +1,69 @@
+name: Bug report
+description: Report incorrect runtime, type, normalization, or documentation behavior.
+title: "bug: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a problem. Do not include private identifiers, account details, or security vulnerabilities.
+  - type: input
+    id: version
+    attributes:
+      label: Package version or commit
+      description: State the installed version or commit SHA.
+      placeholder: 0.1.0 or abc1234
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Include Node.js, TypeScript, package manager, and operating-system versions when relevant.
+      placeholder: Node 24, TypeScript 6, npm 11, macOS
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Identity
+        - Banking
+        - Business or tax
+        - Telecom
+        - National Address
+        - Types or package exports
+        - Documentation
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Provide minimal code using synthetic or redacted values.
+      render: ts
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I used synthetic or redacted data and included no secrets or personal identifiers.
+          required: true
+        - label: I checked the documented canonical representation and limitations.
+          required: true
