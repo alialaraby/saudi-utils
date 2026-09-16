@@ -67,8 +67,8 @@ flowchart LR
 |     4 | IBAN                                   |  ✅ Complete   | Structure, MOD-97, normalize, format pass                |
 |     5 | Business/tax                           |  ✅ Complete   | VAT, TIN, UNN, legacy CR pass                            |
 |     6 | Telecom                                |  ✅ Complete   | Mobile, landline, toll-free, normalize pass              |
-|     7 | National Address                       | ⬜ Not started | Components, Short Address, object validation pass        |
-|     8 | Cross-domain hardening                 | ⬜ Not started | Adversarial/property/performance/coverage gates pass     |
+|     7 | National Address                       |  ✅ Complete   | Components, Short Address, object validation pass        |
+|     8 | Cross-domain hardening                 |  ✅ Complete   | Adversarial/property/performance/coverage gates pass     |
 |     9 | README and documentation               | ⬜ Not started | npm/GitHub docs accurately cover every contract          |
 |    10 | CI and release automation              | ⬜ Not started | CI matrix and trusted-publish workflow validate          |
 |    11 | npm release readiness                  | ⬜ Not started | Packed artifact, metadata, consumers, size all pass      |
@@ -414,7 +414,7 @@ Inspect the repository and requirements first. Implement only Phase 7 National A
 
 ## Phase 8 — Cross-domain hardening
 
-> **Phase status:** ⬜ Not started
+> **Phase status:** ✅ Complete
 
 ### Objective
 
