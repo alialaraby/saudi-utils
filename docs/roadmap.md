@@ -24,15 +24,15 @@ flowchart LR
   classDef complete fill:#1f883d,color:#fff,stroke:#116329;
   classDef next fill:#fff8c5,color:#24292f,stroke:#9a6700,stroke-width:2px;
   classDef planned fill:#f6f8fa,color:#57606a,stroke:#8c959f;
-  class P0,P1,P2,P3,P4,P5 complete;
-  class P6 next;
-  class P7,P8,P9,P10,P11 planned;
+  class P0,P1,P2,P3,P4,P5,P6 complete;
+  class P7 next;
+  class P8,P9,P10,P11 planned;
 ```
 
 ### Quick navigation
 
 [Technical decisions](#1-frozen-technical-decisions) · [Phase status](#2-phase-status) ·
-[Operating procedure](#3-operating-procedure) · [Next: Phase 6](#phase-6--telecom-validators-and-normalization) ·
+[Operating procedure](#3-operating-procedure) · [Next: Phase 7](#phase-7--national-address-validators) ·
 [Release gate](#4-release-gate)
 
 ## 1. Frozen technical decisions
@@ -66,7 +66,7 @@ flowchart LR
 |     3 | Identity                               |  ✅ Complete   | National ID, Iqama, Saudi ID/type, Border ID pass        |
 |     4 | IBAN                                   |  ✅ Complete   | Structure, MOD-97, normalize, format pass                |
 |     5 | Business/tax                           |  ✅ Complete   | VAT, TIN, UNN, legacy CR pass                            |
-|     6 | Telecom                                | ⬜ Not started | Mobile, landline, toll-free, normalize pass              |
+|     6 | Telecom                                |  ✅ Complete   | Mobile, landline, toll-free, normalize pass              |
 |     7 | National Address                       | ⬜ Not started | Components, Short Address, object validation pass        |
 |     8 | Cross-domain hardening                 | ⬜ Not started | Adversarial/property/performance/coverage gates pass     |
 |     9 | README and documentation               | ⬜ Not started | npm/GitHub docs accurately cover every contract          |
@@ -334,7 +334,7 @@ Inspect the repository, requirements, and evidence document first. Implement onl
 
 ## Phase 6 — Telecom validators and normalization
 
-> **Phase status:** ⬜ Not started
+> **Phase status:** ✅ Complete
 
 ### Objective
 
