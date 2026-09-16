@@ -19,3 +19,12 @@ This document records the evidence strength and offline limitations of the imple
 - **Checks:** exactly 10 ASCII digits beginning with `3` or `4`.
 - **Sources:** [Absher Border Number query](https://www.absher.sa/wps/vanityurl/en/individuals/querybordernumber) and [Jawazat public guidance](https://x.com/AljawazatKSA/status/943878092858318848).
 - **Limitation:** no complete public normative schema or checksum was found, so no checksum is applied or implied. Passing does not prove that a value is accepted as a Border ID in every government workflow, or prove issuance, existence, ownership, person, identity, residency, visa, entry, or status. This provisional contract must be reviewed on every major release.
+
+## Banking validators
+
+### Saudi IBAN
+
+- **Evidence level:** `official-checksum`
+- **Checks:** the 24-character Saudi structure, uppercase `SA` country prefix, ASCII check and bank-identifier digits, uppercase ASCII alphanumeric BBAN, and ISO 13616 MOD-97-10 checksum.
+- **Sources:** [SWIFT IBAN Registry](https://www.swift.com/sites/default/files/files/iban-registry_3.pdf) and [SAMA printed IBAN format](https://rulebook.sama.gov.sa/en/printed-iban-account-formats).
+- **Limitation:** this is offline structural and checksum validation, not authoritative account or bank verification. Passing does not prove bank-code allocation, account existence, ownership, status, or ability to receive funds.
