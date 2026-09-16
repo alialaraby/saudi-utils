@@ -213,4 +213,5 @@ Available focused commands are `npm test`, `npm run test:coverage`, `npm run typ
 - [Contributing](CONTRIBUTING.md)
 - [Security policy](SECURITY.md)
 - [Changelog](CHANGELOG.md)
+- [Release process](docs/releasing.md)
 - [MIT License](LICENSE)
