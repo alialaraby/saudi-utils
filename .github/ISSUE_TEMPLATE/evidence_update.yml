@@ -1,0 +1,76 @@
+name: Validation evidence update
+description: Propose a sourced correction or clarification to a Saudi validation rule.
+title: "docs(evidence): "
+labels:
+  - documentation
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Rule changes require reviewable evidence. A third-party package alone is not sufficient authority.
+  - type: dropdown
+    id: domain
+    attributes:
+      label: Domain
+      options:
+        - Identity
+        - Banking
+        - Business or tax
+        - Telecom
+        - National Address
+    validations:
+      required: true
+  - type: input
+    id: api
+    attributes:
+      label: Affected API
+      placeholder: validateBorderId
+    validations:
+      required: true
+  - type: textarea
+    id: current_rule
+    attributes:
+      label: Current documented rule
+    validations:
+      required: true
+  - type: textarea
+    id: proposed_rule
+    attributes:
+      label: Proposed exact offline rule
+      description: Include length, alphabet, prefix, layout, checksum, and normalization details as applicable.
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Authoritative sources
+      description: Provide direct public links, document title, issuing authority, publication date or version, and relevant section or page.
+    validations:
+      required: true
+  - type: dropdown
+    id: checksum
+    attributes:
+      label: Checksum effect
+      options:
+        - No checksum change
+        - Adds or changes a checksum
+        - Removes a checksum claim
+        - Unknown or needs research
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Compatibility and limitation impact
+      description: List values whose result changes, what the rule still cannot prove, and remaining evidence gaps.
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: The proposal does not present offline validation as authoritative verification.
+          required: true
+        - label: The sources support the exact proposed claim, not only the identifier's existence.
+          required: true
