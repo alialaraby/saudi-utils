@@ -2,9 +2,9 @@
 
 ## Project purpose
 
-Build Saudi Utils as a production-quality npm package for Saudi-specific validation and normalization.
+Build a production-quality npm package for Saudi-specific validation and normalization utilities.
 
-Primary goals:
+Primary product goals:
 
 - maximum correctness
 - zero runtime dependencies where reasonably possible
@@ -15,7 +15,181 @@ Primary goals:
 - clean, readable implementation
 - professional open-source/npm quality
 
+This repository is also a **portfolio project**.
+
+Every meaningful implementation decision should help demonstrate strong software-engineering judgment to:
+
+- senior engineers
+- engineering managers
+- technical recruiters
+- open-source contributors
+- npm users
+
+The GitHub repository should visibly demonstrate:
+
+- thoughtful architecture
+- clean TypeScript
+- strong tests
+- disciplined Git usage
+- meaningful commits
+- clear PRs
+- CI quality gates
+- documentation quality
+- explicit technical decisions
+- secure and maintainable implementation
+- professional npm-package practices
+
+Do not optimize for artificial GitHub activity. Prefer a small number of high-quality commits, branches, issues, and PRs over activity generated only for appearance.
+
 This is an npm library, not an application.
+
+## Git and GitHub workflow
+
+For meaningful implementation work:
+
+1. Inspect the current branch and repository status before changing anything.
+2. Do not implement significant features directly on the default branch.
+3. Create a focused branch for the current task.
+4. Choose a concise, descriptive branch name following normal Git conventions.
+
+Examples:
+
+```text
+feat/identity-validation
+feat/saudi-iban
+test/identity-edge-cases
+docs/validation-evidence
+ci/package-quality
+fix/iban-normalization
+```
+
+5. Keep commits focused and independently understandable.
+6. Choose commit messages using Conventional Commits where appropriate.
+
+Examples:
+
+```text
+feat(identity): add Saudi national ID validation
+test(identity): cover checksum mutations
+feat(banking): add Saudi IBAN normalization
+docs(identity): document checksum evidence
+fix(telecom): reject unsupported phone prefix
+ci: add package validation workflow
+```
+
+Avoid:
+
+```text
+update
+changes
+fix stuff
+phase 3
+work
+final
+```
+
+7. Do not combine unrelated changes into one commit.
+8. Before creating a PR, run the relevant tests and package checks.
+9. Push the branch and create a PR when the phase/task is complete.
+10. Never merge automatically unless explicitly requested.
+
+Codex may choose:
+
+- branch names
+- commit boundaries
+- commit messages
+- Git commands
+- PR title
+- PR description
+
+but they must follow these repository rules.
+
+## Pull requests
+
+Each meaningful phase or feature should normally produce one focused PR.
+
+PR titles should clearly describe the engineering outcome.
+
+Good:
+
+```text
+feat(identity): add Saudi identity validators
+feat(banking): implement Saudi IBAN validation
+test(identity): harden identity validation edge cases
+```
+
+PR descriptions should stay concise but include:
+
+### What
+
+What capability was added or changed.
+
+### Why
+
+The requirement or technical reason.
+
+### Implementation
+
+Important engineering decisions only.
+
+### Validation
+
+Tests and checks executed.
+
+### Limitations
+
+Known evidence gaps or intentionally unsupported behavior, when relevant.
+
+Do not generate verbose PR descriptions merely for appearance.
+
+## Portfolio-quality decisions
+
+When multiple technically valid implementations exist, prefer the one that best demonstrates:
+
+- correctness
+- maintainability
+- simplicity
+- clear engineering reasoning
+- testing discipline
+- npm-library knowledge
+
+Do not introduce unnecessary patterns solely to make the project look more sophisticated.
+
+Senior engineering quality should be visible through good decisions, not architecture complexity.
+
+## Repository hygiene
+
+Keep the repository professional.
+
+Do not commit:
+
+- generated temporary files
+- debug output
+- editor-specific noise
+- credentials
+- secrets
+- `.env` files
+- unnecessary build artifacts
+- experimental files not belonging to the implementation
+
+Keep `.gitignore` accurate.
+
+Do not rewrite published Git history unless explicitly requested.
+
+Do not force-push unless explicitly required.
+
+## GitHub Issues and roadmap
+
+When the repository already uses GitHub Issues, keep implementation tasks aligned with them.
+
+For substantial work:
+
+- create or reference a focused issue where useful
+- connect the PR to the issue
+- keep scope consistent with the roadmap
+- do not implement future phases accidentally
+
+Do not create trivial issues merely to increase visible activity.
 
 ## Work discipline
 
@@ -86,7 +260,9 @@ A small amount of duplication is preferable to an opaque generic validation fram
 Target:
 
 ```json
-"dependencies": {}
+{
+  "dependencies": {}
+}
 ```
 
 Do not add a runtime dependency without explicit approval.
@@ -396,11 +572,16 @@ A task is complete only when:
 - public behavior has not unintentionally changed
 - no runtime dependency was added without approval
 - no unrelated files were changed
+- Git history for the task is clean and meaningful
+- the phase is ready for a focused PR
 
 At the end, report only:
 
 1. what changed
-2. tests/checks run and their result
-3. any unresolved issue or assumption
+2. branch used
+3. commits created
+4. tests/checks run and their result
+5. PR created or ready to create
+6. any unresolved issue or assumption
 
 Keep the summary concise.
