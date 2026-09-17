@@ -77,8 +77,9 @@ Boolean `is*` helpers are thin wrappers around their detailed validators.
 
 ## API reference
 
-Every public value is a named root export. See [the detailed API reference](docs/api.md) for exact
-signatures, accepted representations, normalization rules, and return behavior.
+Every public value is a named root export. See
+[the detailed API reference](https://github.com/alialaraby/saudi-utils/blob/main/docs/api.md) for
+exact signatures, accepted representations, normalization rules, and return behavior.
 
 | Domain           | Public exports                                                                                                                                                                                                                     |
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -112,7 +113,8 @@ signatures, accepted representations, normalization rules, and return behavior.
 
 Rules are classified as `official-checksum`, `official-structural`,
 `official-structural-community-checksum`, or `best-known-structural`. The complete source and
-limitation register is in [docs/evidence.md](docs/evidence.md).
+limitation register is in the
+[validation evidence document](https://github.com/alialaraby/saudi-utils/blob/main/docs/evidence.md).
 
 - **Border ID is provisional:** only the best-known 10-digit structure and `3`/`4` prefixes are
   checked. No checksum or complete public normative schema is claimed.
@@ -127,7 +129,8 @@ limitation register is in [docs/evidence.md](docs/evidence.md).
 ## Examples
 
 The values labelled synthetic below demonstrate offline rules only; they are not presented as
-issued identifiers. The repository's [typechecked quick-start fixture](examples/quick-start.ts)
+issued identifiers. The repository's
+[typechecked quick-start fixture](https://github.com/alialaraby/saudi-utils/blob/main/examples/quick-start.ts)
 also executes its expected results.
 
 ### Identity
@@ -208,10 +211,10 @@ Available focused commands are `npm test`, `npm run test:coverage`, `npm run typ
 
 ## Project policies
 
-- [Validation evidence](docs/evidence.md)
-- [API reference](docs/api.md)
-- [Contributing](CONTRIBUTING.md)
-- [Security policy](SECURITY.md)
-- [Changelog](CHANGELOG.md)
-- [Release process](docs/releasing.md)
-- [MIT License](LICENSE)
+- [Validation evidence](https://github.com/alialaraby/saudi-utils/blob/main/docs/evidence.md)
+- [API reference](https://github.com/alialaraby/saudi-utils/blob/main/docs/api.md)
+- [Contributing](https://github.com/alialaraby/saudi-utils/blob/main/CONTRIBUTING.md)
+- [Security policy](https://github.com/alialaraby/saudi-utils/blob/main/SECURITY.md)
+- [Changelog](https://github.com/alialaraby/saudi-utils/blob/main/CHANGELOG.md)
+- [Release process](https://github.com/alialaraby/saudi-utils/blob/main/docs/releasing.md)
+- [MIT License](https://github.com/alialaraby/saudi-utils/blob/main/LICENSE)
