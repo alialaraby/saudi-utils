@@ -1,11 +1,31 @@
 {
   "name": "saudi-utils",
   "version": "0.1.0",
-  "description": "Saudi Utils for validation and normalization.",
-  "private": true,
+  "description": "Strict Saudi identity, IBAN, business, telecom, and address validation utilities",
+  "keywords": [
+    "saudi",
+    "saudi-arabia",
+    "ksa",
+    "validation",
+    "national-id",
+    "iqama",
+    "iban",
+    "zatca",
+    "national-address",
+    "typescript"
+  ],
+  "author": "Ali Alaraby",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alialaraby/saudi-utils.git"
+  },
+  "bugs": {
+    "url": "https://github.com/alialaraby/saudi-utils/issues"
+  },
+  "homepage": "https://github.com/alialaraby/saudi-utils#readme",
   "type": "module",
   "sideEffects": false,
-  "license": "MIT",
   "engines": {
     "node": ">=22"
   },
@@ -18,8 +38,14 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {},
   "scripts": {
     "clean": "node --eval \"import { rmSync } from 'node:fs'; for (const path of ['dist', 'coverage']) rmSync(path, { recursive: true, force: true });\"",
     "build": "npm run clean && tsc --project tsconfig.json",
@@ -34,7 +60,8 @@
     "attw": "attw --pack . --profile esm-only",
     "pack:dry-run": "npm pack --dry-run --json",
     "pack:check": "node scripts/check-package-contents.mjs",
-    "package:check": "npm run build && npm run publint && npm run attw && npm run pack:check",
+    "pack:consumers": "node scripts/check-packed-consumers.mjs",
+    "package:check": "npm run build && npm run publint && npm run attw && npm run pack:check && npm run pack:consumers",
     "check": "npm run format:check && npm run lint && npm run typecheck && npm run test:coverage && npm run build"
   },
   "devDependencies": {

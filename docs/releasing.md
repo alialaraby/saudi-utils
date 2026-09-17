@@ -1,65 +1,102 @@
 # Releasing
 
-Releases use a published GitHub Release as the only automation trigger. The GitHub Release tag
-must equal `v${package.version}`. The `release.yml` workflow rejects prereleases, runs the complete
-quality and package audits, waits on the protected `npm` environment, and publishes with npm
-trusted publishing.
+The intended first release is `0.1.0`. Later releases use a published GitHub Release as the only
+automation trigger. Its tag must be exactly `v${package.version}` (for example, `v0.1.1`). The
+`release.yml` workflow rejects prereleases, runs the complete quality and package audits, waits on
+the protected `npm` environment, and publishes through npm trusted publishing.
 
-Do not create a tag, GitHub Release, or npm publication until the Phase 11 readiness review is
-complete and the owner-side configuration below has been verified.
+Do not create a tag, publish a GitHub Release, or publish to npm until the applicable checklist
+below is complete. Never add an npm token, `NODE_AUTH_TOKEN`, or other long-lived publishing secret
+to this repository or its GitHub Actions settings.
 
-## One-time owner configuration
+## First-package publication and bootstrap
 
-### Repository and package
+The registry lookup on 17 September 2026 returned `E404` for `saudi-utils`, so the unscoped name
+was available at that time. Recheck immediately before publication because availability can
+change.
 
-- The repository must be public at `https://github.com/alialaraby/saudi-utils` for npm provenance.
-- Before publication, `package.json.repository.url` must exactly match the public GitHub repository
-  URL. This metadata is intentionally deferred to Phase 11 and is not present yet.
-- Confirm ownership and availability of the `saudi-utils` name on npm. The npm account performing
-  setup must own the package or have maintainer access.
-- The package must be public. Phase 11 is responsible for the explicit decision to remove
-  `"private": true` and finalize `publishConfig`; this workflow does not bypass that safeguard.
-- Enable two-factor authentication on maintainer npm and GitHub accounts.
+npm requires a package to exist before a trusted publisher can be configured. Staged publishing
+also cannot create a brand-new package. Consequently, `0.1.0` requires this one-time owner-operated
+bootstrap:
 
-Automatic npm provenance requires both a public repository and a public package. Private GitHub
-repositories do not receive npm provenance even when OIDC trusted publishing succeeds.
+1. Ensure the npm owner account has two-factor authentication enabled and the public GitHub
+   repository is `https://github.com/alialaraby/saudi-utils`.
+2. Merge the reviewed release-readiness work. In a clean checkout of the exact `main` commit to be
+   published, replace the changelog's `Unreleased` heading with `0.1.0` and the publication date,
+   then merge that focused release-preparation change.
+3. Recheck `npm view saudi-utils`. Stop if it no longer returns `E404`; do not rename or publish
+   over a package whose ownership is uncertain.
+4. With Node.js 22 or newer and a current npm CLI, run:
+
+   ```bash
+   npm ci
+   npm run docs:check
+   npm run check
+   npm run package:check
+   npm pack --dry-run --json
+   npm pack --json
+   ```
+
+5. Inspect the generated `saudi-utils-0.1.0.tgz` against the dry-run manifest. Authenticate
+   interactively with `npm login`, verify the intended account with `npm whoami`, then publish that
+   exact tarball with `npm publish ./saudi-utils-0.1.0.tgz --access public`. This is a direct
+   publication and requires the owner's 2FA; it must not use an automation token.
+6. Remove the local tarball. Verify the live npm version, access, README, license, repository, and
+   installed artifact. Then create and push the annotated tag `v0.1.0` on the exact published
+   commit.
+7. Do **not** publish a GitHub Release for `v0.1.0`: that event would invoke `release.yml` and try
+   to publish the already-existing version. The changelog and annotated tag are the bootstrap
+   release record. GitHub Releases begin with the next version.
+8. Now that the npm package page exists, configure trusted publishing and package access as
+   described below. No trusted-publishing provenance can be attached retroactively to the manual
+   bootstrap version; automated later releases must carry provenance.
+
+Official npm references: [publishing an unscoped package](https://docs.npmjs.com/creating-and-publishing-unscoped-public-packages/),
+[trusted publishers](https://docs.npmjs.com/trusted-publishers/), and
+[staged publishing](https://docs.npmjs.com/staged-publishing/).
+
+## One-time owner configuration after bootstrap
 
 ### npm trusted publisher
 
-In the npm package settings, add a **GitHub Actions** trusted publisher with these exact values:
+In the `saudi-utils` package settings on npmjs.com, add a **GitHub Actions** trusted publisher with
+these exact, case-sensitive values:
 
-| npm field            | Value                |
-| -------------------- | -------------------- |
-| Organization or user | `alialaraby`         |
-| Repository           | `saudi-utils`        |
-| Workflow filename    | `release.yml`        |
-| Environment name     | `npm`                |
-| Allowed action       | Direct `npm publish` |
+| npm field            | Value                                    |
+| -------------------- | ---------------------------------------- |
+| Organization or user | `alialaraby`                             |
+| Repository           | `saudi-utils`                            |
+| Workflow filename    | `release.yml`                            |
+| Environment name     | `npm`                                    |
+| Allowed actions      | Allow direct `npm publish` (and staging) |
 
-The workflow filename is only the filename, not `.github/workflows/release.yml`. All configured
-values are case-sensitive. npm requires Node.js 22.14.0 or newer and npm 11.5.1 or newer for trusted
-publishing; the workflow uses Node.js 24.20.0 and installs npm 11.5.1.
+The workflow filename is only `release.yml`, not `.github/workflows/release.yml`. The checked-in
+workflow uses direct `npm publish --access public`, so direct publishing must be enabled for this
+trusted publisher. npm allows `npm stage publish` for new trusted-publisher configurations as
+well, but that does not change this repository's direct workflow.
 
-Follow npm's [trusted publishing configuration](https://docs.npmjs.com/trusted-publishers/). Once
-OIDC publishing works, configure npm publishing access to require 2FA and disallow traditional
-publishing tokens.
+Direct publishing makes the version public when the protected workflow completes. Staged
+publishing would instead require changing the workflow to npm 11.15.0 or newer and replacing
+`npm publish` with `npm stage publish`; an owner would then review and approve the staged artifact
+with 2FA before it became public. Do not switch modes without a separately reviewed workflow and
+release-process change.
 
-No `NPM_TOKEN`, `NODE_AUTH_TOKEN`, GitHub secret, or other long-lived npm publishing credential is
-required or accepted by this workflow. npm exchanges the GitHub OIDC identity for a short-lived
-publish credential and automatically creates provenance; do not add a manual `--provenance` flag.
+Trusted publishing requires Node.js 22.14.0 or newer and npm 11.5.1 or newer. The workflow uses a
+GitHub-hosted runner, Node.js 24.20.0, npm 11.5.1, `id-token: write`, and the `npm` environment.
+OIDC automatically creates provenance for later public releases from this public repository, so
+the workflow intentionally has neither an npm token nor a manual `--provenance` flag.
 
-### First publication
+After one OIDC release succeeds:
 
-npm's trusted-publisher setup begins in an existing package's settings. If `saudi-utils` has never
-been published or otherwise created for the intended owner, the trusted publisher cannot be
-attached yet. Phase 11 must verify the registry state and document the approved bootstrap process.
-Any one-time initial publication requires separate explicit owner approval and interactive npm
-authentication; do not place a bootstrap credential in GitHub Actions. After the package exists,
-configure the trusted publisher above before using the automated release workflow.
+1. Open the package's **Settings → Publishing access**.
+2. Select **Require two-factor authentication and disallow tokens**.
+3. Revoke any existing automation or granular write tokens that are no longer needed.
+4. Keep the trusted publisher; the token restriction does not disable its short-lived OIDC
+   credentials.
 
 ### Protected GitHub environment
 
-Create a GitHub environment named `npm` and configure it before publishing:
+Create a GitHub environment named `npm` and configure it before the first automated release:
 
 - require at least one maintainer reviewer;
 - prevent self-review where the repository plan supports it;
@@ -71,47 +108,46 @@ See GitHub's [environment protection documentation](https://docs.github.com/en/a
 Repository administration permission is required to configure environments. npm package owner or
 maintainer permission is required to configure the trusted publisher.
 
-## Release checklist
+## Subsequent automated releases
 
-1. Confirm Phase 11's packed-artifact, metadata, registry-name, and consumer checks are complete.
-2. Ensure `main` is current and CI passes on Node.js 22, 24, and 26.
-3. Choose a non-prerelease semantic version. Prerelease publishing has no approved dist-tag policy
+1. Ensure `main` is current and CI passes on the supported Node.js lines.
+2. Choose a non-prerelease semantic version. Prerelease publishing has no approved dist-tag policy
    and is rejected by the workflow.
-4. Update `package.json`, `package-lock.json`, and `CHANGELOG.md` to the same version and release
-   notes. Confirm `"private": true` has been removed only as part of the approved Phase 11 work.
-5. Run locally with Node.js 22 or newer:
+3. Update `package.json`, `package-lock.json`, and `CHANGELOG.md` to the same version and release
+   notes in a focused pull request.
+4. Run locally with Node.js 22 or newer:
 
    ```bash
    npm ci
    npm run docs:check
    npm run check
    npm run package:check
-   npm run pack:dry-run
+   npm pack --dry-run --json
    ```
 
-6. Merge the focused release-preparation pull request after review and green CI.
-7. Create the annotated release tag `v<version>` from the intended commit.
-8. Draft a GitHub Release for that exact tag. Ensure its version and notes match `package.json` and
-   `CHANGELOG.md`, leave the prerelease option disabled, then publish the GitHub Release.
-9. Review the waiting `npm` environment deployment. Approve it only after confirming the tag,
-   commit, checks, package manifest, and release notes.
-10. Confirm the workflow publishes with `npm publish --access public` and no token or manual
-    provenance flag.
+5. Merge only after review and green CI.
+6. Create and push an annotated tag named exactly `v<version>` on the intended commit.
+7. Draft a GitHub Release for that tag. Confirm the tag, version, commit, and notes, leave the
+   prerelease option disabled, then publish the GitHub Release.
+8. Review the waiting `npm` environment deployment. Approve it only after confirming the tag,
+   commit, checks, manifest, and release notes. The workflow then publishes directly through OIDC.
 
 ## Post-publication verification
 
-- Confirm the npm page shows the expected version, README, license, repository, and public access.
-- Inspect the published file list and install the exact version in a clean ESM/TypeScript consumer.
-- Confirm npm displays provenance linked to the expected public GitHub repository, workflow, tag,
-  and commit. Trusted publishing creates provenance automatically.
-- Confirm the GitHub Release, tag, `package.json`, lockfile, and changelog all show the same version.
-- Record any verification result required by the release checklist.
+- Confirm npm shows the expected version, README, MIT license, repository, and public access.
+- Compare the published file list with the reviewed pack manifest and install the exact version in
+  clean ESM and strict TypeScript consumers.
+- For automated releases, confirm npm displays provenance linked to
+  `alialaraby/saudi-utils`, `.github/workflows/release.yml`, the expected tag, and commit. Provenance
+  proves the build origin, not that the package is defect-free.
+- Confirm the GitHub Release, tag, `package.json`, lockfile, and changelog show the same version.
+- Confirm the release workflow used OIDC and the protected `npm` environment, with no token.
 
 ## Corrections, deprecation, and rollback
 
 Published registry data is immutable. Correct a defect with a new patch release: fix the issue,
-add regression tests, update the changelog and version, and repeat the normal reviewed release
-process. Never move an existing release tag or attempt to overwrite a published version.
+add regression tests, update the changelog and version, and repeat the reviewed release process.
+Never move an existing release tag or attempt to overwrite a published version.
 
 If users must avoid a defective version, deprecate that exact version with a clear replacement:
 
@@ -124,6 +160,5 @@ publication, not administrative commands. Follow npm's
 [deprecation guidance](https://docs.npmjs.com/deprecating-and-undeprecating-packages-or-package-versions/).
 
 Avoid unpublishing except for an exceptional security or accidental-disclosure case reviewed by
-the owner. Unpublishing can break downstream builds, cannot make a used name/version reusable, and
-is restricted by npm policy. Prefer a corrective release plus deprecation. See npm's
+the owner. Prefer a corrective release plus deprecation. See npm's
 [unpublish policy](https://docs.npmjs.com/policies/unpublish/).
