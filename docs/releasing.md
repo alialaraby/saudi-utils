@@ -3,7 +3,8 @@
 The intended first release is `0.1.0`. Later releases use a published GitHub Release as the only
 automation trigger. Its tag must be exactly `v${package.version}` (for example, `v0.1.1`). The
 `release.yml` workflow rejects prereleases, runs the complete quality and package audits, waits on
-the protected `npm` environment, and publishes through npm trusted publishing.
+the protected `npm` environment, and stages the package through npm trusted publishing. A
+maintainer must inspect and approve the staged artifact with 2FA before it becomes public.
 
 Do not create a tag, publish a GitHub Release, or publish to npm until the applicable checklist
 below is complete. Never add an npm token, `NODE_AUTH_TOKEN`, or other long-lived publishing secret
@@ -62,31 +63,27 @@ Official npm references: [publishing an unscoped package](https://docs.npmjs.com
 In the `saudi-utils` package settings on npmjs.com, add a **GitHub Actions** trusted publisher with
 these exact, case-sensitive values:
 
-| npm field            | Value                                    |
-| -------------------- | ---------------------------------------- |
-| Organization or user | `alialaraby`                             |
-| Repository           | `saudi-utils`                            |
-| Workflow filename    | `release.yml`                            |
-| Environment name     | `npm`                                    |
-| Allowed actions      | Allow direct `npm publish` (and staging) |
+| npm field            | Value                 |
+| -------------------- | --------------------- |
+| Organization or user | `alialaraby`          |
+| Repository           | `saudi-utils`         |
+| Workflow filename    | `release.yml`         |
+| Environment name     | `npm`                 |
+| Allowed actions      | Stage-only publishing |
 
 The workflow filename is only `release.yml`, not `.github/workflows/release.yml`. The checked-in
-workflow uses direct `npm publish --access public`, so direct publishing must be enabled for this
-trusted publisher. npm allows `npm stage publish` for new trusted-publisher configurations as
-well, but that does not change this repository's direct workflow.
+workflow uses `npm stage publish --access public`. Configure the trusted publisher to allow
+`npm stage publish` but not direct `npm publish`. If the existing trusted-publisher connection is
+direct-publish-only or also permits direct publishing, delete it and create a stage-only connection
+with the exact identity above; npm does not allow an existing connection to be edited.
 
-Direct publishing makes the version public when the protected workflow completes. Staged
-publishing would instead require changing the workflow to npm 11.15.0 or newer and replacing
-`npm publish` with `npm stage publish`; an owner would then review and approve the staged artifact
-with 2FA before it became public. Do not switch modes without a separately reviewed workflow and
-release-process change.
+Staged publishing requires Node.js 22.14.0 or newer and npm 11.15.0 or newer. The workflow uses a
+GitHub-hosted runner, Node.js 24.20.0, explicitly pinned npm 11.19.1, `id-token: write`, and the
+`npm` environment. OIDC automatically creates provenance for public releases from this public
+repository, so the workflow intentionally has neither an npm token nor a manual `--provenance`
+flag.
 
-Trusted publishing requires Node.js 22.14.0 or newer and npm 11.5.1 or newer. The workflow uses a
-GitHub-hosted runner, Node.js 24.20.0, npm 11.5.1, `id-token: write`, and the `npm` environment.
-OIDC automatically creates provenance for later public releases from this public repository, so
-the workflow intentionally has neither an npm token nor a manual `--provenance` flag.
-
-After one OIDC release succeeds:
+After one staged OIDC release is approved successfully:
 
 1. Open the package's **Settings → Publishing access**.
 2. Select **Require two-factor authentication and disallow tokens**.
@@ -130,7 +127,33 @@ maintainer permission is required to configure the trusted publisher.
 7. Draft a GitHub Release for that tag. Confirm the tag, version, commit, and notes, leave the
    prerelease option disabled, then publish the GitHub Release.
 8. Review the waiting `npm` environment deployment. Approve it only after confirming the tag,
-   commit, checks, manifest, and release notes. The workflow then publishes directly through OIDC.
+   commit, checks, manifest, and release notes.
+9. The workflow builds, verifies, audits, and submits the package to npm's staging area through
+   OIDC. Workflow success means the package is staged; it is not public yet.
+10. From an interactively authenticated maintainer session using npm 11.15.0 or newer, list the
+    staged versions and inspect the selected stage:
+
+    ```bash
+    npm stage list saudi-utils
+    npm stage view <stage-id>
+    ```
+
+11. Download the exact staged tarball for additional local inspection when desired:
+
+    ```bash
+    npm stage download <stage-id>
+    ```
+
+12. After review, either approve the stage or reject it:
+
+    ```bash
+    npm stage approve <stage-id>
+    npm stage reject <stage-id>
+    ```
+
+    Approval publishes the staged package to the registry and requires maintainer 2FA. Rejection
+    permanently removes the staged package and also requires 2FA. Run only the command matching
+    the review decision.
 
 ## Post-publication verification
 
@@ -141,7 +164,8 @@ maintainer permission is required to configure the trusted publisher.
   `alialaraby/saudi-utils`, `.github/workflows/release.yml`, the expected tag, and commit. Provenance
   proves the build origin, not that the package is defect-free.
 - Confirm the GitHub Release, tag, `package.json`, lockfile, and changelog show the same version.
-- Confirm the release workflow used OIDC and the protected `npm` environment, with no token.
+- Confirm the release workflow staged through OIDC and the protected `npm` environment, the
+  maintainer approved the intended stage with 2FA, and no token was used.
 
 ## Corrections, deprecation, and rollback
 
