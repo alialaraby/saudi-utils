@@ -58,20 +58,20 @@ flowchart LR
 
 ## 2. Phase status
 
-| Phase | Scope                                  |     Status     | Exit condition                                           |
-| ----: | -------------------------------------- | :------------: | -------------------------------------------------------- |
-|     0 | Final technical and evidence decisions |  ✅ Complete   | Requirements and roadmap freeze package-level choices    |
-|     1 | Repository bootstrap                   |  ✅ Complete   | Install, build, test, lint, format-check, typecheck pass |
-|     2 | Shared validation primitives           |  ✅ Complete   | Result/error behavior and internal helpers fully tested  |
-|     3 | Identity                               |  ✅ Complete   | National ID, Iqama, Saudi ID/type, Border ID pass        |
-|     4 | IBAN                                   |  ✅ Complete   | Structure, MOD-97, normalize, format pass                |
-|     5 | Business/tax                           |  ✅ Complete   | VAT, TIN, UNN, legacy CR pass                            |
-|     6 | Telecom                                |  ✅ Complete   | Mobile, landline, toll-free, normalize pass              |
-|     7 | National Address                       |  ✅ Complete   | Components, Short Address, object validation pass        |
-|     8 | Cross-domain hardening                 |  ✅ Complete   | Adversarial/property/performance/coverage gates pass     |
-|     9 | README and documentation               | ⬜ Not started | npm/GitHub docs accurately cover every contract          |
-|    10 | CI and release automation              |  ✅ Complete   | CI matrix and trusted-publish workflow validate          |
-|    11 | npm release readiness                  | ⬜ Not started | Packed artifact, metadata, consumers, size all pass      |
+| Phase | Scope                                  |   Status    | Exit condition                                           |
+| ----: | -------------------------------------- | :---------: | -------------------------------------------------------- |
+|     0 | Final technical and evidence decisions | ✅ Complete | Requirements and roadmap freeze package-level choices    |
+|     1 | Repository bootstrap                   | ✅ Complete | Install, build, test, lint, format-check, typecheck pass |
+|     2 | Shared validation primitives           | ✅ Complete | Result/error behavior and internal helpers fully tested  |
+|     3 | Identity                               | ✅ Complete | National ID, Iqama, Saudi ID/type, Border ID pass        |
+|     4 | IBAN                                   | ✅ Complete | Structure, MOD-97, normalize, format pass                |
+|     5 | Business/tax                           | ✅ Complete | VAT, TIN, UNN, legacy CR pass                            |
+|     6 | Telecom                                | ✅ Complete | Mobile, landline, toll-free, normalize pass              |
+|     7 | National Address                       | ✅ Complete | Components, Short Address, object validation pass        |
+|     8 | Cross-domain hardening                 | ✅ Complete | Adversarial/property/performance/coverage gates pass     |
+|     9 | README and documentation               | ✅ Complete | npm/GitHub docs accurately cover every contract          |
+|    10 | CI and release automation              | ✅ Complete | CI matrix and trusted-publish workflow validate          |
+|    11 | npm release readiness                  | ✅ Complete | Packed artifact, metadata, consumers, size all pass      |
 
 ## 3. Operating procedure
 
@@ -534,7 +534,7 @@ Inspect the repository, metadata, current npm trusted-publishing docs, and compl
 
 ## Phase 11 — npm release readiness
 
-> **Phase status:** ⬜ Not started
+> **Phase status:** ✅ Complete
 
 ### Objective
 
