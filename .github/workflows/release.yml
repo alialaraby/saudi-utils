@@ -13,8 +13,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  publish:
-    name: Publish to npm
+  stage:
+    name: Stage package on npm
     runs-on: ubuntu-latest
     environment: npm
     permissions:
@@ -33,7 +33,7 @@ jobs:
           package-manager-cache: false
 
       - name: Set up supported npm
-        run: npm install --global npm@11.5.1
+        run: npm install --global npm@11.19.1
 
       - name: Validate toolchain and release metadata
         env:
@@ -70,5 +70,5 @@ jobs:
           npm run package:check
           npm run pack:dry-run
 
-      - name: Publish public package with trusted publishing
-        run: npm publish --access public
+      - name: Stage public package with trusted publishing
+        run: npm stage publish --access public
