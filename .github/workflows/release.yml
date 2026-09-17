@@ -1,0 +1,74 @@
+name: Release
+
+on:
+  release:
+    types:
+      - published
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.event.release.tag_name }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Check out release tag
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24.20.0
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+
+      - name: Set up supported npm
+        run: npm install --global npm@11.5.1
+
+      - name: Validate toolchain and release metadata
+        env:
+          RELEASE_PRERELEASE: ${{ github.event.release.prerelease }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          node --version
+          npm --version
+
+          if [ "$RELEASE_PRERELEASE" = "true" ]; then
+            echo "Prerelease publication is not configured." >&2
+            exit 1
+          fi
+
+          package_version="$(node --print "require('./package.json').version")"
+          expected_tag="v${package_version}"
+
+          if [ "$RELEASE_TAG" != "$expected_tag" ]; then
+            echo "Release tag $RELEASE_TAG must equal $expected_tag." >&2
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run documentation checks
+        run: npm run docs:check
+
+      - name: Run complete quality suite
+        run: npm run check
+
+      - name: Audit packed package
+        run: |
+          npm run package:check
+          npm run pack:dry-run
+
+      - name: Publish public package with trusted publishing
+        run: npm publish --access public

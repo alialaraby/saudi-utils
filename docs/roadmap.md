@@ -70,7 +70,7 @@ flowchart LR
 |     7 | National Address                       |  ✅ Complete   | Components, Short Address, object validation pass        |
 |     8 | Cross-domain hardening                 |  ✅ Complete   | Adversarial/property/performance/coverage gates pass     |
 |     9 | README and documentation               | ⬜ Not started | npm/GitHub docs accurately cover every contract          |
-|    10 | CI and release automation              | ⬜ Not started | CI matrix and trusted-publish workflow validate          |
+|    10 | CI and release automation              |  ✅ Complete   | CI matrix and trusted-publish workflow validate          |
 |    11 | npm release readiness                  | ⬜ Not started | Packed artifact, metadata, consumers, size all pass      |
 
 ## 3. Operating procedure
@@ -495,7 +495,7 @@ Inspect the implemented API, requirements, evidence, and tests first. Implement 
 
 ## Phase 10 — CI and release automation
 
-> **Phase status:** ⬜ Not started
+> **Phase status:** ✅ Complete
 
 ### Objective
 
