@@ -39,8 +39,7 @@ Every rule change must:
 1. identify an authoritative or approved public source;
 2. state the exact offline rule and whether a checksum is applied;
 3. state what success does not prove and any evidence gap;
-4. update [the requirements](docs/requirements.md) and [evidence register](docs/evidence.md) before
-   changing accepted behavior;
+4. update the [evidence register](docs/evidence.md) before changing accepted behavior;
 5. add focused valid, invalid, Unicode, mutation, and boundary tests as applicable.
 
 If evidence cannot support the proposed behavior, open an evidence-update issue instead of
