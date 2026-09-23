@@ -1,11 +1,8 @@
 ### What
 
-
 ### Why
 
-
 ### Implementation
-
 
 ### Validation
 
@@ -14,4 +11,3 @@
 - [ ] `npm run package:check`
 
 ### Limitations
-
