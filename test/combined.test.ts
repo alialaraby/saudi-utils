@@ -92,6 +92,16 @@ describe("combined normalization and validation", () => {
     expect(normalizePhoneNumber("00966152345678")).toBeNull();
   });
 
+  it("reports an invalid toll-free length after selecting the national representation", () => {
+    expectFailure(
+      normalizeAndValidatePhoneNumber("800123456"),
+      "INVALID_LENGTH",
+      "Toll-free number has an invalid length.",
+      "800123456",
+    );
+    expect(normalizePhoneNumber("800123456")).toBeNull();
+  });
+
   it.each([
     [normalizeAndValidateIban, "Saudi IBAN"],
     [normalizeAndValidateShortAddress, "Short Address"],
