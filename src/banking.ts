@@ -17,6 +17,14 @@ function hasValidIbanChecksum(value: string): boolean {
   return mod97(expanded) === 1;
 }
 
+/**
+ * Validates a canonical Saudi IBAN: 24 uppercase ASCII characters, SA country code, numeric check/bank digits, and MOD-97 checksum.
+ *
+ * Spaces and lowercase letters are not accepted here; use normalizeIban explicitly.
+ *
+ * @param value - Unknown input; only a primitive string in the stated canonical format is accepted.
+ * @returns A result containing the unchanged string when valid, or the first applicable error code.
+ */
 export function validateSaudiIban(value: unknown): ValidationResult {
   const input = checkStringInput(value);
 
@@ -47,10 +55,27 @@ export function validateSaudiIban(value: unknown): ValidationResult {
   return { valid: true, value: input.value };
 }
 
+/**
+ * Checks the canonical Saudi IBAN structure and MOD-97 checksum.
+ *
+ * @param value - Unknown input; only a primitive string in the stated canonical format is accepted.
+ * @returns True when the input satisfies the stated offline rules; false otherwise.
+ */
 export function isSaudiIban(value: unknown): value is string {
   return validateSaudiIban(value).valid;
 }
 
+/**
+ * Converts a Saudi IBAN to validated canonical form.
+ *
+ * Removes ASCII spaces and uppercases ASCII letters. Other separators and Unicode digits are rejected.
+ *
+ * @param value - Unknown input; only a primitive string is accepted.
+ * @returns The uppercase, unspaced 24-character IBAN when valid; null otherwise.
+ *
+ * @example
+ * normalizeIban("sa39 1500 0000 1234 5678 9012"); // "SA3915000000123456789012"
+ */
 export function normalizeIban(value: unknown): string | null {
   if (typeof value !== "string") {
     return null;
@@ -77,6 +102,12 @@ export function normalizeIban(value: unknown): string | null {
   return isSaudiIban(normalized) ? normalized : null;
 }
 
+/**
+ * Groups a valid canonical Saudi IBAN into six blocks of four characters.
+ *
+ * @param value - Unknown input; must be a valid, uppercase, unspaced Saudi IBAN string.
+ * @returns The grouped IBAN with ASCII spaces, or null for invalid input.
+ */
 export function formatIban(value: unknown): string | null {
   if (!isSaudiIban(value)) {
     return null;

@@ -29,30 +29,80 @@ function validateFixedLengthDigits(value: unknown, length: number): ValidationRe
   return { valid: true, value: input.value };
 }
 
+/**
+ * Validates a five-digit Saudi National Address postal code.
+ *
+ * Checks ASCII digit structure only, not allocation or address existence.
+ *
+ * @param value - Unknown input; only a primitive string in the stated canonical format is accepted.
+ * @returns A result containing the unchanged string when valid, or the first applicable error code.
+ */
 export function validatePostalCode(value: unknown): ValidationResult {
   return validateFixedLengthDigits(value, 5);
 }
 
+/**
+ * Checks the five-digit Saudi postal code structure only.
+ *
+ * @param value - Unknown input; only a primitive string in the stated canonical format is accepted.
+ * @returns True when the input satisfies the stated offline rules; false otherwise.
+ */
 export function isPostalCode(value: unknown): value is string {
   return validatePostalCode(value).valid;
 }
 
+/**
+ * Validates a four-digit Saudi National Address building number.
+ *
+ * Checks ASCII digit structure only, not allocation or address existence.
+ *
+ * @param value - Unknown input; only a primitive string in the stated canonical format is accepted.
+ * @returns A result containing the unchanged string when valid, or the first applicable error code.
+ */
 export function validateBuildingNumber(value: unknown): ValidationResult {
   return validateFixedLengthDigits(value, 4);
 }
 
+/**
+ * Checks the four-digit Saudi building number structure only.
+ *
+ * @param value - Unknown input; only a primitive string in the stated canonical format is accepted.
+ * @returns True when the input satisfies the stated offline rules; false otherwise.
+ */
 export function isBuildingNumber(value: unknown): value is string {
   return validateBuildingNumber(value).valid;
 }
 
+/**
+ * Validates a four-digit Saudi National Address additional number.
+ *
+ * Checks ASCII digit structure only, not allocation or address existence.
+ *
+ * @param value - Unknown input; only a primitive string in the stated canonical format is accepted.
+ * @returns A result containing the unchanged string when valid, or the first applicable error code.
+ */
 export function validateAdditionalNumber(value: unknown): ValidationResult {
   return validateFixedLengthDigits(value, 4);
 }
 
+/**
+ * Checks the four-digit Saudi additional number structure only.
+ *
+ * @param value - Unknown input; only a primitive string in the stated canonical format is accepted.
+ * @returns True when the input satisfies the stated offline rules; false otherwise.
+ */
 export function isAdditionalNumber(value: unknown): value is string {
   return validateAdditionalNumber(value).valid;
 }
 
+/**
+ * Validates a canonical Saudi Short Address: four uppercase ASCII letters followed by four ASCII digits.
+ *
+ * Spaces and lowercase letters are not accepted here; use normalizeShortAddress explicitly.
+ *
+ * @param value - Unknown input; only a primitive string in the stated canonical format is accepted.
+ * @returns A result containing the unchanged string when valid, or the first applicable error code.
+ */
 export function validateShortAddress(value: unknown): ValidationResult {
   const input = checkStringInput(value);
 
@@ -71,10 +121,27 @@ export function validateShortAddress(value: unknown): ValidationResult {
   return { valid: true, value: input.value };
 }
 
+/**
+ * Checks the canonical eight-character Saudi Short Address structure.
+ *
+ * @param value - Unknown input; only a primitive string in the stated canonical format is accepted.
+ * @returns True when the input satisfies the stated offline rules; false otherwise.
+ */
 export function isShortAddress(value: unknown): value is string {
   return validateShortAddress(value).valid;
 }
 
+/**
+ * Converts a supported Saudi Short Address representation to canonical form.
+ *
+ * Uppercases ASCII letters and removes at most one ASCII space between the groups; rejects other separators and Unicode characters.
+ *
+ * @param value - Unknown input; only a primitive string is accepted.
+ * @returns Four uppercase ASCII letters followed by four ASCII digits, or null when unsupported.
+ *
+ * @example
+ * normalizeShortAddress("abcd 1234"); // "ABCD1234"
+ */
 export function normalizeShortAddress(value: unknown): string | null {
   if (typeof value !== "string") {
     return null;
@@ -87,6 +154,14 @@ export function normalizeShortAddress(value: unknown): string | null {
   return `${value.slice(0, 4).toUpperCase()}${value.slice(-4)}`;
 }
 
+/**
+ * Validates the required shape and component formats of a Saudi National Address object.
+ *
+ * All fields must be nonempty strings. Building and additional numbers must have four ASCII digits; postal code must have five. Street, district, and city have no further format check. Existence and field relationships are not verified.
+ *
+ * @param value - Unknown input; must be an object with own data properties for buildingNumber, street, district, city, postalCode, and additionalNumber.
+ * @returns The copied address fields when valid, or the first applicable error code.
+ */
 export function validateNationalAddress(value: unknown): NationalAddressValidationResult {
   if (value === undefined || value === null || value === "") {
     return { valid: false, code: "REQUIRED" };
