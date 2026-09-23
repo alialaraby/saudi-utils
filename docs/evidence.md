@@ -80,7 +80,7 @@ existence, activity, registration, account status, address existence, or phone r
   ability to receive funds.
 - **Known limitation:** checksum success is not a live bank or account lookup.
 
-`normalizeIban` changes only the documented representation and revalidates the result.
+`normalizeIban` changes only the documented representation; checksum and Saudi structure are checked by validation APIs.
 `formatIban` groups only an already-valid canonical value; it does not normalize invalid,
 lowercase, or spaced input.
 

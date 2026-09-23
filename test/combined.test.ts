@@ -47,7 +47,7 @@ describe("combined normalization and validation", () => {
       "Saudi IBAN has an invalid checksum.",
       candidate,
     );
-    expect(normalizeIban("sa03 8000 0000 6080 1016 7518")).toBeNull();
+    expect(normalizeIban("sa03 8000 0000 6080 1016 7518")).toBe(candidate);
     expect(validateSaudiIbanDetailed(candidate)).toEqual({
       valid: false,
       code: "INVALID_CHECKSUM",
@@ -69,7 +69,7 @@ describe("combined normalization and validation", () => {
       "Short Address has an invalid length.",
       "ABCD12",
     );
-    expect(normalizeShortAddress("abcd 12")).toBeNull();
+    expect(normalizeShortAddress("abcd 12")).toBe("ABCD12");
   });
 
   it.each([
@@ -89,7 +89,16 @@ describe("combined normalization and validation", () => {
       "Landline number has an invalid prefix.",
       "+966152345678",
     );
-    expect(normalizePhoneNumber("00966152345678")).toBeNull();
+    expect(normalizePhoneNumber("00966152345678")).toEqual({
+      kind: "landline",
+      value: "+966152345678",
+    });
+    expectFailure(
+      normalizeAndValidatePhoneNumber("0601234567"),
+      "INVALID_PREFIX",
+      "Mobile number has an invalid prefix.",
+      "+966601234567",
+    );
   });
 
   it("reports an invalid toll-free length after selecting the national representation", () => {
@@ -99,7 +108,10 @@ describe("combined normalization and validation", () => {
       "Toll-free number has an invalid length.",
       "800123456",
     );
-    expect(normalizePhoneNumber("800123456")).toBeNull();
+    expect(normalizePhoneNumber("800123456")).toEqual({
+      kind: "toll-free",
+      value: "800123456",
+    });
   });
 
   it.each([

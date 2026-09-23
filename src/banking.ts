@@ -66,19 +66,18 @@ export function isSaudiIban(value: unknown): value is string {
 }
 
 /**
- * Converts a Saudi IBAN to validated canonical form.
+ * Converts an IBAN representation to canonical ASCII form without validating it.
  *
  * Removes ASCII spaces and uppercases ASCII letters. Other separators and Unicode digits are rejected.
  *
  * @param value - Unknown input; only a primitive string is accepted.
- * @returns The uppercase, unspaced 24-character IBAN when valid; null otherwise.
+ * @returns The uppercase, unspaced candidate, even if its length, country code, or checksum is invalid; null when no candidate can be produced.
  *
  * @example
  * normalizeIban("sa39 1500 0000 1234 5678 9012"); // "SA3915000000123456789012"
  */
 export function normalizeIban(value: unknown): string | null {
-  const normalized = normalizeIbanInput(value);
-  return normalized !== null && isSaudiIban(normalized) ? normalized : null;
+  return normalizeIbanInput(value);
 }
 
 /** @internal Produces a candidate without claiming that the IBAN is valid. */
@@ -105,7 +104,7 @@ export function normalizeIbanInput(value: unknown): string | null {
     }
   }
 
-  return normalized;
+  return normalized === "" ? null : normalized;
 }
 
 /**

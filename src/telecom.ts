@@ -144,12 +144,12 @@ export function isTollFreeNumber(value: unknown): value is string {
 }
 
 /**
- * Normalizes a supported Saudi mobile, landline, or toll-free number.
+ * Normalizes a supported phone representation without validating its prefix or length.
  *
  * Mobile and landline accept national, +966, 966, or 00966 forms and return +966 form. Toll-free accepts national 800 form only. Whitespace, punctuation, extensions, and Unicode digits are rejected.
  *
  * @param value - Unknown input; only unseparated primitive ASCII strings in supported forms are accepted.
- * @returns A kind-tagged canonical phone value, or null when unsupported or invalid.
+ * @returns A kind-tagged canonical candidate, even when its prefix or length is invalid; null when the representation cannot be converted. The kind selects the corresponding validator and does not assert validity.
  */
 export function normalizePhoneNumber(value: unknown): NormalizedSaudiPhone | null {
   const canonical = normalizePhoneNumberInput(value);
@@ -158,23 +158,17 @@ export function normalizePhoneNumber(value: unknown): NormalizedSaudiPhone | nul
     return null;
   }
 
-  if (validateTollFreeNumber(canonical).valid) {
+  if (canonical.startsWith("800")) {
     return { kind: "toll-free", value: `800${canonical.slice(3)}` };
   }
 
-  if (!hasE164SaudiPrefix(canonical)) {
-    return null;
+  const e164: `+966${string}` = `+966${canonical.slice(4)}`;
+
+  if (canonical.startsWith("+9661")) {
+    return { kind: "landline", value: e164 };
   }
 
-  if (validateMobileNumber(canonical).valid) {
-    return { kind: "mobile", value: canonical };
-  }
-
-  if (validateLandlineNumber(canonical).valid) {
-    return { kind: "landline", value: canonical };
-  }
-
-  return null;
+  return { kind: "mobile", value: e164 };
 }
 
 /** @internal Produces a candidate without claiming that the phone number is valid. */
@@ -184,20 +178,25 @@ export function normalizePhoneNumberInput(value: unknown): string | null {
   }
 
   if (value.startsWith("800")) {
-    return value;
+    return isAsciiDigits(value) ? value : null;
   }
 
-  if (hasE164SaudiPrefix(value)) {
-    return value;
-  }
+  const national = hasE164SaudiPrefix(value)
+    ? value.slice(4)
+    : value.startsWith("00966")
+      ? value.slice(5)
+      : value.startsWith("966")
+        ? value.slice(3)
+        : value.startsWith("0")
+          ? value.slice(1)
+          : null;
 
-  if (value.startsWith("00966")) {
-    return `+966${value.slice(5)}`;
-  }
-
-  if (value.startsWith("966")) {
-    return `+966${value.slice(3)}`;
-  }
-
-  return value.startsWith("0") ? `+966${value.slice(1)}` : null;
+  return national !== null &&
+    national !== "" &&
+    isAsciiDigits(national) &&
+    !national.startsWith("0") &&
+    !national.startsWith("966") &&
+    !national.startsWith("800")
+    ? `+966${national}`
+    : null;
 }

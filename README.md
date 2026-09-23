@@ -47,11 +47,11 @@ Unicode numerals. Canonical numeric values use ASCII digits and preserve leading
 
 Explicit normalizers accept only their documented variants:
 
-- `normalizeIban` removes ASCII spaces, uppercases ASCII letters, then validates the result.
+- `normalizeIban` removes ASCII spaces and uppercases ASCII letters.
 - `normalizePhoneNumber` accepts specific unseparated Saudi national and country-code forms.
 - `normalizeShortAddress` uppercases ASCII letters and removes at most one permitted ASCII space.
 
-All return `null` for unsupported or invalid input and are idempotent after success.
+Normalizers do not validate domain rules: a canonical candidate may still have an invalid checksum, prefix, or length. They return `null` only when the documented representation cannot produce a meaningful candidate, and are idempotent after success.
 For a single operation with structured errors, use `normalizeAndValidateIban`,
 `normalizeAndValidatePhoneNumber`, or `normalizeAndValidateShortAddress`. Each returns a validated
 canonical value on success, or a code and message on failure. When conversion produced a safe

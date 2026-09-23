@@ -113,6 +113,9 @@ describe("IBAN normalization", () => {
     ["SA03 8000 0000 6080 1016 7519", REFERENCE_SAUDI_IBAN],
     [" sa03  8000 0000 6080 1016 7519 ", REFERENCE_SAUDI_IBAN],
     [SYNTHETIC_SAUDI_IBAN.toLowerCase(), SYNTHETIC_SAUDI_IBAN],
+    ["sa03 8000 0000 6080 1016 7518", "SA0380000000608010167518"],
+    [VALID_NON_SAUDI_IBAN.toLowerCase(), VALID_NON_SAUDI_IBAN],
+    ["sa", "SA"],
   ])("normalizes approved representation %#", (value, expected) => {
     expect(normalizeIban(value)).toBe(expected);
   });
@@ -131,6 +134,7 @@ describe("IBAN normalization", () => {
     1n,
     new String(REFERENCE_SAUDI_IBAN),
     "",
+    "   ",
     "SA03-8000-0000-6080-1016-7519",
     "SA03\u00a08000\u00a00000\u00a06080\u00a01016\u00a07519",
     "SA03\t\t80000000608010167519",
@@ -145,9 +149,7 @@ describe("IBAN normalization", () => {
     "SA03.80000000608010167519",
     "SA03/80000000608010167519",
     "SA03(80000000608010167519)",
-    mutateCharacter(REFERENCE_SAUDI_IBAN, 3),
-    VALID_NON_SAUDI_IBAN,
-  ])("rejects unsupported or invalid representation %#", (value) => {
+  ])("rejects unsupported representation %#", (value) => {
     expect(normalizeIban(value)).toBeNull();
   });
 });
@@ -255,7 +257,7 @@ describe("banking API hardening", () => {
 
     expectFailure(validateSaudiIban(input), "INVALID_LENGTH");
     expect(isSaudiIban(input)).toBe(false);
-    expect(normalizeIban(input)).toBeNull();
+    expect(normalizeIban(input)).toBe(input);
     expect(formatIban(input)).toBeNull();
   });
 });

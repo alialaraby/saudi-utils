@@ -132,19 +132,18 @@ export function isShortAddress(value: unknown): value is string {
 }
 
 /**
- * Converts a supported Saudi Short Address representation to canonical form.
+ * Converts a supported Short Address representation to canonical form without validating it.
  *
  * Uppercases ASCII letters and removes at most one ASCII space between the groups; rejects other separators and Unicode characters.
  *
  * @param value - Unknown input; only a primitive string is accepted.
- * @returns Four uppercase ASCII letters followed by four ASCII digits, or null when unsupported.
+ * @returns Four uppercase ASCII letters followed by the supplied ASCII digits, even when the digit count is invalid; null when the representation is unsupported.
  *
  * @example
  * normalizeShortAddress("abcd 1234"); // "ABCD1234"
  */
 export function normalizeShortAddress(value: unknown): string | null {
-  const normalized = normalizeShortAddressInput(value);
-  return normalized !== null && validateShortAddress(normalized).valid ? normalized : null;
+  return normalizeShortAddressInput(value);
 }
 
 /** @internal Produces a candidate without claiming that the Short Address is valid. */

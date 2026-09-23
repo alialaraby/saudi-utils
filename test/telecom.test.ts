@@ -133,6 +133,10 @@ describe("phone normalization", () => {
     ["966112345678", "landline", LANDLINE_E164],
     ["00966112345678", "landline", LANDLINE_E164],
     [TOLL_FREE, "toll-free", TOLL_FREE],
+    ["0601234567", "mobile", "+966601234567"],
+    ["966601234567", "mobile", "+966601234567"],
+    ["00966152345678", "landline", "+966152345678"],
+    ["800123456", "toll-free", "800123456"],
   ] as const)("normalizes %s as %s", (input, kind, value) => {
     expect(normalizePhoneNumber(input)).toEqual({ kind, value });
   });
@@ -141,6 +145,8 @@ describe("phone normalization", () => {
     { kind: "mobile", value: MOBILE_E164 },
     { kind: "landline", value: LANDLINE_E164 },
     { kind: "toll-free", value: TOLL_FREE },
+    { kind: "mobile", value: "+966601234567" },
+    { kind: "landline", value: "+966152345678" },
   ] as const)("is idempotent for canonical $kind output", ({ value }) => {
     const first = normalizePhoneNumber(value);
 
@@ -167,6 +173,7 @@ describe("phone normalization", () => {
 
   it.each([
     "050 123 4567",
+    "800123456x",
     "050-123-4567",
     "(050)1234567",
     "050.123.4567",
