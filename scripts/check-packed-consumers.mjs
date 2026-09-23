@@ -118,7 +118,7 @@ assert.deepEqual(saudiUtils.validateNationalIdDetailed("bad"), { valid: false, c
 assert.equal(saudiUtils.normalizeIban("sa03 8000 0000 6080 1016 7519"), "SA0380000000608010167519");
 assert.deepEqual(saudiUtils.normalizeAndValidateIban("sa03 8000 0000 6080 1016 7519"), { valid: true, value: "SA0380000000608010167519" });
 assert.equal(saudiUtils.validateVatNumber("300000000000003").valid, true);
-assert.deepEqual(saudiUtils.normalizePhoneNumber("0501234567"), { kind: "mobile", value: "+966501234567" });
+assert.equal(saudiUtils.normalizePhoneNumber("0501234567"), "+966501234567");
 assert.equal(saudiUtils.normalizeShortAddress("abcd 0123"), "ABCD0123");
 assert.equal(saudiUtils.validateNationalAddress({
   buildingNumber: "0123",
@@ -181,7 +181,8 @@ const address: NationalAddress = {
   city: "Riyadh", postalCode: "01234", additionalNumber: "0000",
 };
 const result: NationalAddressValidationResult = validateNationalAddress(address);
-const phone: NormalizedSaudiPhone | null = normalizePhoneNumber("0501234567");
+const phone: string | null = normalizePhoneNumber("0501234567");
+const combinedPhoneValue: DetailedValidationResult<NormalizedSaudiPhone> = normalizeAndValidatePhoneNumber("0501234567");
 const error: ValidationErrorCode = "INVALID_FORMAT";
 const evidence: ValidationEvidence = "official-structural";
 const validation: ValidationResult = validateSaudiIban("SA0380000000608010167519");
@@ -192,7 +193,7 @@ const combinedAddress = normalizeAndValidateShortAddress("abcd 0123");
 const detailedAddress: DetailedValidationResult<NationalAddress> = validateNationalAddressDetailed(address);
 
 void [
-  address, result, phone, error, evidence, validation, detailed, detailedAddress, combined, combinedPhone, combinedAddress, formatIban, getSaudiIdType,
+  address, result, phone, combinedPhoneValue, error, evidence, validation, detailed, detailedAddress, combined, combinedPhone, combinedAddress, formatIban, getSaudiIdType,
   isAdditionalNumber, isBorderId, isBuildingNumber, isCommercialRegistration, isIqama,
   isLandlineNumber, isMobileNumber, isNationalId, isPostalCode, isSaudiIban, isSaudiId,
   isShortAddress, isTin, isTollFreeNumber, isUnifiedNationalNumber, isVatNumber, normalizeIban,

@@ -30,7 +30,7 @@ export type ValidationEvidence =
   | "official-structural-community-checksum"
   | "best-known-structural";
 
-/** Canonical phone value and its kind: E.164 for mobile/landline, national form for toll-free. */
+/** Validated combined phone result and its kind: E.164 for mobile/landline, national form for toll-free. */
 export type NormalizedSaudiPhone =
   | {
       kind: "mobile" | "landline";

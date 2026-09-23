@@ -45,7 +45,7 @@ Validators are deliberately strict. They accept `unknown`, but only primitive st
 valid identifiers. They do not trim, coerce, remove punctuation, change case, or translate
 Unicode numerals. Canonical numeric values use ASCII digits and preserve leading zeroes.
 
-Explicit normalizers accept only their documented variants:
+Every standalone normalizer returns a canonical string directly, or `null` when its documented representation cannot be converted. Normalization does not validate checksums, prefixes, or lengths. Explicit normalizers accept only their documented variants:
 
 - `normalizeIban` removes ASCII spaces and uppercases ASCII letters.
 - `normalizePhoneNumber` accepts specific unseparated Saudi national and country-code forms.
@@ -173,8 +173,7 @@ validateUnifiedNationalNumber("7123456789").valid; // true: structural result
 import { normalizePhoneNumber, validateMobileNumber } from "saudi-utils";
 
 validateMobileNumber("0501234567").valid; // true: no reachability or carrier claim
-normalizePhoneNumber("0501234567");
-// { kind: "mobile", value: "+966501234567" }
+normalizePhoneNumber("0501234567"); // "+966501234567"
 ```
 
 ### National Address
