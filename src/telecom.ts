@@ -162,15 +162,13 @@ export function normalizePhoneNumber(value: unknown): NormalizedSaudiPhone | nul
     return { kind: "toll-free", value: `800${canonical.slice(3)}` };
   }
 
-  if (!hasE164SaudiPrefix(canonical)) {
-    return null;
-  }
+  const e164: `+966${string}` = `+966${canonical.slice(4)}`;
 
   if (canonical.startsWith("+9661")) {
-    return { kind: "landline", value: canonical };
+    return { kind: "landline", value: e164 };
   }
 
-  return { kind: "mobile", value: canonical };
+  return { kind: "mobile", value: e164 };
 }
 
 /** @internal Produces a candidate without claiming that the phone number is valid. */
