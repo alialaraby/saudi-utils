@@ -176,6 +176,7 @@ describe("Short Address normalization", () => {
     ["abcd0123", "ABCD0123"],
     ["AbCd 0123", "ABCD0123"],
     ["wxyz 0000", "WXYZ0000"],
+    ["abcd 12", "ABCD12"],
   ])("normalizes %s to %s", (input, expected) => {
     expect(normalizeShortAddress(input)).toBe(expected);
     expect(normalizeShortAddress(expected)).toBe(expected);
