@@ -45,7 +45,7 @@ Each public API entry in the README and evidence document must state what is che
 - All numeric grammar uses ASCII `[0-9]`, never `\d`.
 - Arabic-Indic, Persian, full-width, and mixed-script digits are rejected.
 - Identifiers retain leading zeroes and are never represented as JavaScript numbers.
-- Explicit normalizers are separate APIs and document their exact accepted transformations. They return a mechanically canonical candidate even when domain validation fails; `null` means the representation cannot produce a meaningful candidate.
+- Explicit normalizers are separate APIs and document their exact accepted transformations. They return a mechanically canonical string candidate directly even when domain validation fails; `null` means the representation cannot produce a meaningful candidate. Every public `normalizeX()` returns `string | null` without metadata or validation.
 
 Example:
 
@@ -203,15 +203,7 @@ The CST National Numbering Plan is the structural basis. Number portability proh
 - **Mobile/landline accepted representations:** unseparated ASCII-digit national form, `+966...`, `966...`, or `00966...`.
 - **Toll-free accepted representation:** national `800...` only; validation checks its length.
 - **Rejected:** punctuation, internal or external whitespace, extensions, Unicode digits, double country codes, and malformed prefixes.
-- **Return type:**
-
-```ts
-export type NormalizedSaudiPhone =
-  | { kind: "mobile" | "landline"; value: `+966${string}` }
-  | { kind: "toll-free"; value: `800${string}` };
-```
-
-Return `NormalizedSaudiPhone | null`. The kind selects the relevant validator; the returned candidate may have an invalid prefix or length. `null` means the documented representation cannot be converted. Successful normalization is idempotent.
+- **Return type:** `string | null`. Mobile and landline candidates use `+966...`; toll-free candidates use national `800...`. The returned candidate may have an invalid prefix or length. `null` means the documented representation cannot be converted. Successful normalization is idempotent. Phone classification remains part of combined normalization and validation results only.
 
 ### 4.5 National Address
 
@@ -442,7 +434,7 @@ Regexes must be anchored, simple, and free from nested ambiguous repetition. Run
 ### 11.2 Combined normalization and validation
 
 - For each value with both a public normalizer and validator, provide one public operation that normalizes the input first, validates the normalized value, and returns that canonical value on success.
-- Use one consistent naming and API convention across supported domains. Preserve the existing `normalizeX()` and `validateX()` contracts.
+- Use one consistent naming and API convention across supported domains. Use the standardized `string | null` standalone normalization contract and preserve `validateX()` behavior.
 - Compose existing normalization and validation primitives where practical; do not duplicate domain rules.
 - Failed normalization or validation must return a deterministic failure compatible with the shared result/error model. Do not treat a failed normalizer as proof of a more specific validation error than the available evidence supports.
 
@@ -455,8 +447,8 @@ Regexes must be anchored, simple, and free from nested ambiguous repetition. Run
 
 ### 11.4 Compatibility and quality
 
-- Add these capabilities without breaking existing public APIs. Keep zero runtime dependencies, strict TypeScript, and the existing test and package quality standards.
-- Before implementation, resolve the public naming of combined operations, the message-bearing result type, and how normalization failures map to error codes, including the object-valued phone normalizer.
+- Keep existing validation and combined API behavior; standardizing standalone normalization return shapes is an intentional breaking change. Keep zero runtime dependencies, strict TypeScript, and the existing test and package quality standards.
+- Before implementation, resolve the public naming of combined operations, the message-bearing result type, and how normalization failures map to error codes, while the standalone phone normalizer returns `string | null`.
 
 ## 12. Approval baseline
 

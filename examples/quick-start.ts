@@ -39,10 +39,7 @@ expectEqual(validateVatNumber("300000000000003").valid, true);
 expectEqual(validateTin("0123456789").valid, true);
 expectEqual(validateUnifiedNationalNumber("7123456789").valid, true);
 expectEqual(validateMobileNumber("0501234567").valid, true);
-expectEqual(normalizePhoneNumber("0501234567"), {
-  kind: "mobile",
-  value: "+966501234567",
-});
+expectEqual(normalizePhoneNumber("0501234567"), "+966501234567");
 expectEqual(normalizeShortAddress("abcd 0123"), "ABCD0123");
 expectEqual(
   validateNationalAddress({

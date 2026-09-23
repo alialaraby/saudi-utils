@@ -65,6 +65,8 @@ National ID and Iqama checksum support comes from community implementation evide
 DGA ecosystem; the public normative source does not publish the formula. Border ID validation is
 provisional and structural only.
 
+All standalone `normalizeX` functions return `string | null`: a canonical candidate without validation, or `null` when the documented representation cannot be converted.
+
 ## Banking
 
 | Export              | Signature                              | Contract                                                                                                                               |
@@ -98,19 +100,19 @@ broader structural grammars. These APIs do not infer registry type or status.
 
 ## Telecom
 
-| Export                   | Signature                                          | Contract                                                                                    |
-| ------------------------ | -------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `validateMobileNumber`   | `(value: unknown) => ValidationResult`             | National `05XXXXXXXX` or E.164 `+9665XXXXXXXX`.                                             |
-| `isMobileNumber`         | `(value: unknown) => value is string`              | Boolean/type-guard mobile structure validation.                                             |
-| `validateLandlineNumber` | `(value: unknown) => ValidationResult`             | National or E.164 form with geographic code `011`, `012`, `013`, `014`, `016`, or `017`.    |
-| `isLandlineNumber`       | `(value: unknown) => value is string`              | Boolean/type-guard landline structure validation.                                           |
-| `validateTollFreeNumber` | `(value: unknown) => ValidationResult`             | National `800XXXXXXX` only. International-looking forms and `9200` numbers are unsupported. |
-| `isTollFreeNumber`       | `(value: unknown) => value is string`              | Boolean/type-guard toll-free structure validation.                                          |
-| `normalizePhoneNumber`   | `(value: unknown) => NormalizedSaudiPhone \| null` | Normalizes and classifies one supported unseparated representation.                         |
+| Export                   | Signature                              | Contract                                                                                    |
+| ------------------------ | -------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `validateMobileNumber`   | `(value: unknown) => ValidationResult` | National `05XXXXXXXX` or E.164 `+9665XXXXXXXX`.                                             |
+| `isMobileNumber`         | `(value: unknown) => value is string`  | Boolean/type-guard mobile structure validation.                                             |
+| `validateLandlineNumber` | `(value: unknown) => ValidationResult` | National or E.164 form with geographic code `011`, `012`, `013`, `014`, `016`, or `017`.    |
+| `isLandlineNumber`       | `(value: unknown) => value is string`  | Boolean/type-guard landline structure validation.                                           |
+| `validateTollFreeNumber` | `(value: unknown) => ValidationResult` | National `800XXXXXXX` only. International-looking forms and `9200` numbers are unsupported. |
+| `isTollFreeNumber`       | `(value: unknown) => value is string`  | Boolean/type-guard toll-free structure validation.                                          |
+| `normalizePhoneNumber`   | `(value: unknown) => string \| null`   | Returns the canonical string for one supported unseparated representation.                  |
 
 For mobile and landline values, `normalizePhoneNumber` accepts canonical national, `+966`, `966`,
 or `00966` form and returns canonical `+966...`. It accepts toll-free numbers only in national `800...` form and returns that form. It rejects whitespace, punctuation, extensions, Unicode
-digits, malformed/doubled country codes, and international toll-free forms. Its kind selects a validator; it does not assert a valid service prefix or length.
+digits, malformed/doubled country codes, and international toll-free forms. Normalization does not assert a valid service prefix or length.
 
 No telecom API proves allocation, activation, subscriber identity, reachability, or current
 carrier. Prefixes cannot identify the current carrier because numbers are portable.
@@ -186,7 +188,7 @@ type ValidationEvidence =
 
 This is a documentation classification, not a property returned by validators.
 
-### `NormalizedSaudiPhone`
+### `NormalizedSaudiPhone` (combined phone validation only)
 
 ```ts
 type NormalizedSaudiPhone =

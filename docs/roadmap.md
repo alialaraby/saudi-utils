@@ -366,7 +366,7 @@ Implement mobile, landline, toll-free, and explicit normalization without carrie
 ### VS Code Codex prompt
 
 ```text
-Inspect the repository and requirements first. Implement only Phase 6 telecom APIs. Follow the exact national/E.164 contracts, area-code list, national-only toll-free rule, and discriminated normalization result. Add exhaustive code/prefix/adversarial tests and no carrier inference. Run the full check suite and summarize changed files, results, and assumptions.
+Inspect the repository and requirements first. Implement only Phase 6 telecom APIs. Follow the exact national/E.164 contracts, area-code list, national-only toll-free rule, and `string | null` normalization result. Add exhaustive code/prefix/adversarial tests and no carrier inference. Run the full check suite and summarize changed files, results, and assumptions.
 ```
 
 ---
@@ -592,3 +592,7 @@ The first `npm publish` is outside these phases and requires explicit owner appr
 - Version, tag, changelog, and GitHub Release notes disagree.
 
 After approval, create the version/tag per `docs/releasing.md`; let the protected workflow publish with provenance; verify the npm page, README, install command, and a clean consumer install; then record the published version and URL.
+
+## Normalization contract update
+
+All public standalone normalizers (`normalizeIban`, `normalizePhoneNumber`, and `normalizeShortAddress`) return `string | null`. They produce canonical candidates without domain validation. The combined phone API retains its kind-tagged validated result.

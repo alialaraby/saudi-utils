@@ -19,6 +19,7 @@ import {
   isTollFreeNumber,
   isUnifiedNationalNumber,
   isVatNumber,
+  normalizeAndValidatePhoneNumber,
   normalizeIban,
   normalizePhoneNumber,
   normalizeShortAddress,
@@ -102,8 +103,8 @@ describe("cross-domain invariants", () => {
 
     expect(iban).toBe(REFERENCE_SAUDI_IBAN);
     expect(normalizeIban(iban)).toBe(iban);
-    expect(phone).toEqual({ kind: "mobile", value: "+966501234567" });
-    expect(normalizePhoneNumber(phone?.value)).toEqual(phone);
+    expect(phone).toBe("+966501234567");
+    expect(normalizePhoneNumber(phone)).toBe(phone);
     expect(shortAddress).toBe("ABCD0123");
     expect(normalizeShortAddress(shortAddress)).toBe(shortAddress);
     expect(formatIban(iban)).toBe("SA03 8000 0000 6080 1016 7519");
@@ -146,7 +147,11 @@ describe("cross-domain invariants", () => {
     (input, kind, value, validate) => {
       const normalized = normalizePhoneNumber(input);
 
-      expect(normalized).toEqual({ kind, value });
+      expect(normalized).toBe(value);
+      expect(normalizeAndValidatePhoneNumber(input)).toEqual({
+        valid: true,
+        value: { kind, value },
+      });
       expect(validate(value).valid).toBe(true);
     },
   );

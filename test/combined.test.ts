@@ -79,7 +79,7 @@ describe("combined normalization and validation", () => {
   ] as const)("normalizes and validates a phone number: %s", (input, expected) => {
     expect(normalizeAndValidatePhoneNumber(input)).toEqual({ valid: true, value: expected });
     expect(normalizeAndValidatePhoneNumber(input).valid).toBe(true);
-    expect(normalizePhoneNumber(input)).toEqual(expected);
+    expect(normalizePhoneNumber(input)).toBe(expected.value);
   });
 
   it("reports a phone prefix failure on the normalized candidate", () => {
@@ -89,10 +89,7 @@ describe("combined normalization and validation", () => {
       "Landline number has an invalid prefix.",
       "+966152345678",
     );
-    expect(normalizePhoneNumber("00966152345678")).toEqual({
-      kind: "landline",
-      value: "+966152345678",
-    });
+    expect(normalizePhoneNumber("00966152345678")).toBe("+966152345678");
     expectFailure(
       normalizeAndValidatePhoneNumber("0601234567"),
       "INVALID_PREFIX",
@@ -108,10 +105,7 @@ describe("combined normalization and validation", () => {
       "Toll-free number has an invalid length.",
       "800123456",
     );
-    expect(normalizePhoneNumber("800123456")).toEqual({
-      kind: "toll-free",
-      value: "800123456",
-    });
+    expect(normalizePhoneNumber("800123456")).toBe("800123456");
   });
 
   it.each([

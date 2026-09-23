@@ -137,8 +137,8 @@ describe("phone normalization", () => {
     ["966601234567", "mobile", "+966601234567"],
     ["00966152345678", "landline", "+966152345678"],
     ["800123456", "toll-free", "800123456"],
-  ] as const)("normalizes %s as %s", (input, kind, value) => {
-    expect(normalizePhoneNumber(input)).toEqual({ kind, value });
+  ] as const)("normalizes %s to %s", (input, _kind, value) => {
+    expect(normalizePhoneNumber(input)).toBe(value);
   });
 
   it.each([
@@ -151,7 +151,7 @@ describe("phone normalization", () => {
     const first = normalizePhoneNumber(value);
 
     expect(first).not.toBeNull();
-    expect(normalizePhoneNumber(first?.value)).toEqual(first);
+    expect(normalizePhoneNumber(first)).toBe(first);
   });
 
   it.each([

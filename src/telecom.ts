@@ -1,6 +1,6 @@
 import { isAsciiDigits } from "./internal/ascii.js";
 import { checkStringInput } from "./internal/input.js";
-import type { NormalizedSaudiPhone, ValidationResult } from "./types.js";
+import type { ValidationResult } from "./types.js";
 
 const NATIONAL_PHONE_LENGTH = 10;
 const E164_PHONE_LENGTH = 13;
@@ -149,26 +149,10 @@ export function isTollFreeNumber(value: unknown): value is string {
  * Mobile and landline accept national, +966, 966, or 00966 forms and return +966 form. Toll-free accepts national 800 form only. Whitespace, punctuation, extensions, and Unicode digits are rejected.
  *
  * @param value - Unknown input; only unseparated primitive ASCII strings in supported forms are accepted.
- * @returns A kind-tagged canonical candidate, even when its prefix or length is invalid; null when the representation cannot be converted. The kind selects the corresponding validator and does not assert validity.
+ * @returns The canonical string candidate, even when its prefix or length is invalid; null when the representation cannot be converted.
  */
-export function normalizePhoneNumber(value: unknown): NormalizedSaudiPhone | null {
-  const canonical = normalizePhoneNumberInput(value);
-
-  if (canonical === null) {
-    return null;
-  }
-
-  if (canonical.startsWith("800")) {
-    return { kind: "toll-free", value: `800${canonical.slice(3)}` };
-  }
-
-  const e164: `+966${string}` = `+966${canonical.slice(4)}`;
-
-  if (canonical.startsWith("+9661")) {
-    return { kind: "landline", value: e164 };
-  }
-
-  return { kind: "mobile", value: e164 };
+export function normalizePhoneNumber(value: unknown): string | null {
+  return normalizePhoneNumberInput(value);
 }
 
 /** @internal Produces a candidate without claiming that the phone number is valid. */
