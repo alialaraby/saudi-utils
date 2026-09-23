@@ -20,7 +20,8 @@ export type ValidationResult =
 
 /** A validated value or a stable error code with a short, consumer-facing explanation. */
 export type DetailedValidationResult<T = string> =
-  { valid: true; value: T } | { valid: false; code: ValidationErrorCode; message: string };
+  | { valid: true; value: T }
+  | { valid: false; code: ValidationErrorCode; message: string; normalizedValue?: string };
 
 /** Documentation-only strength of evidence behind a validation rule; not returned at runtime. */
 export type ValidationEvidence =

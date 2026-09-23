@@ -152,25 +152,17 @@ export function isTollFreeNumber(value: unknown): value is string {
  * @returns A kind-tagged canonical phone value, or null when unsupported or invalid.
  */
 export function normalizePhoneNumber(value: unknown): NormalizedSaudiPhone | null {
-  if (typeof value !== "string") {
+  const canonical = normalizePhoneNumberInput(value);
+
+  if (canonical === null) {
     return null;
   }
 
-  if (validateTollFreeNumber(value).valid) {
-    return { kind: "toll-free", value: `800${value.slice(3)}` };
+  if (validateTollFreeNumber(canonical).valid) {
+    return { kind: "toll-free", value: `800${canonical.slice(3)}` };
   }
 
-  let canonical: `+966${string}`;
-
-  if (hasE164SaudiPrefix(value)) {
-    canonical = value;
-  } else if (value.startsWith("00966")) {
-    canonical = `+966${value.slice(5)}`;
-  } else if (value.startsWith("966")) {
-    canonical = `+966${value.slice(3)}`;
-  } else if (value.startsWith("0")) {
-    canonical = `+966${value.slice(1)}`;
-  } else {
+  if (!hasE164SaudiPrefix(canonical)) {
     return null;
   }
 
@@ -183,4 +175,29 @@ export function normalizePhoneNumber(value: unknown): NormalizedSaudiPhone | nul
   }
 
   return null;
+}
+
+/** @internal Produces a candidate without claiming that the phone number is valid. */
+export function normalizePhoneNumberInput(value: unknown): string | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  if (value.startsWith("800")) {
+    return value;
+  }
+
+  if (hasE164SaudiPrefix(value)) {
+    return value;
+  }
+
+  if (value.startsWith("00966")) {
+    return `+966${value.slice(5)}`;
+  }
+
+  if (value.startsWith("966")) {
+    return `+966${value.slice(3)}`;
+  }
+
+  return value.startsWith("0") ? `+966${value.slice(1)}` : null;
 }

@@ -143,15 +143,21 @@ export function isShortAddress(value: unknown): value is string {
  * normalizeShortAddress("abcd 1234"); // "ABCD1234"
  */
 export function normalizeShortAddress(value: unknown): string | null {
+  const normalized = normalizeShortAddressInput(value);
+  return normalized !== null && validateShortAddress(normalized).valid ? normalized : null;
+}
+
+/** @internal Produces a candidate without claiming that the Short Address is valid. */
+export function normalizeShortAddressInput(value: unknown): string | null {
   if (typeof value !== "string") {
     return null;
   }
 
-  if (!/^[A-Za-z]{4} ?[0-9]{4}$/.test(value)) {
+  if (!/^[A-Za-z]{4} ?[0-9]*$/.test(value)) {
     return null;
   }
 
-  return `${value.slice(0, 4).toUpperCase()}${value.slice(-4)}`;
+  return `${value.slice(0, 4).toUpperCase()}${value.slice(value[4] === " " ? 5 : 4)}`;
 }
 
 /**

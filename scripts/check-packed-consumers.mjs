@@ -69,6 +69,9 @@ const expectedRuntimeExports = ${JSON.stringify(
         "isTollFreeNumber",
         "isUnifiedNationalNumber",
         "isVatNumber",
+        "normalizeAndValidateIban",
+        "normalizeAndValidatePhoneNumber",
+        "normalizeAndValidateShortAddress",
         "normalizeIban",
         "normalizePhoneNumber",
         "normalizeShortAddress",
@@ -113,6 +116,7 @@ assert.deepEqual(Object.keys(saudiUtils).sort(), expectedRuntimeExports);
 assert.equal(saudiUtils.validateNationalId("1000000008").valid, true);
 assert.deepEqual(saudiUtils.validateNationalIdDetailed("bad"), { valid: false, code: "INVALID_LENGTH", message: "National ID has an invalid length." });
 assert.equal(saudiUtils.normalizeIban("sa03 8000 0000 6080 1016 7519"), "SA0380000000608010167519");
+assert.deepEqual(saudiUtils.normalizeAndValidateIban("sa03 8000 0000 6080 1016 7519"), { valid: true, value: "SA0380000000608010167519" });
 assert.equal(saudiUtils.validateVatNumber("300000000000003").valid, true);
 assert.deepEqual(saudiUtils.normalizePhoneNumber("0501234567"), { kind: "mobile", value: "+966501234567" });
 assert.equal(saudiUtils.normalizeShortAddress("abcd 0123"), "ABCD0123");
@@ -161,6 +165,7 @@ assert.equal(saudiUtils.validateNationalAddress({
   isCommercialRegistration, isIqama, isLandlineNumber, isMobileNumber, isNationalId,
   isPostalCode, isSaudiIban, isSaudiId, isShortAddress, isTin, isTollFreeNumber,
   isUnifiedNationalNumber, isVatNumber, normalizeIban, normalizePhoneNumber,
+  normalizeAndValidateIban, normalizeAndValidatePhoneNumber, normalizeAndValidateShortAddress,
   normalizeShortAddress, validateAdditionalNumber, validateBorderId, validateBuildingNumber,
   validateCommercialRegistration, validateIqama, validateLandlineNumber, validateMobileNumber,
   validateNationalAddress, validateNationalId, validatePostalCode, validateSaudiIban,
@@ -181,13 +186,17 @@ const error: ValidationErrorCode = "INVALID_FORMAT";
 const evidence: ValidationEvidence = "official-structural";
 const validation: ValidationResult = validateSaudiIban("SA0380000000608010167519");
 const detailed: DetailedValidationResult = validateSaudiIbanDetailed("bad");
+const combined: DetailedValidationResult = normalizeAndValidateIban("sa03 8000 0000 6080 1016 7519");
+const combinedPhone = normalizeAndValidatePhoneNumber("0501234567");
+const combinedAddress = normalizeAndValidateShortAddress("abcd 0123");
 const detailedAddress: DetailedValidationResult<NationalAddress> = validateNationalAddressDetailed(address);
 
 void [
-  address, result, phone, error, evidence, validation, detailed, detailedAddress, formatIban, getSaudiIdType,
+  address, result, phone, error, evidence, validation, detailed, detailedAddress, combined, combinedPhone, combinedAddress, formatIban, getSaudiIdType,
   isAdditionalNumber, isBorderId, isBuildingNumber, isCommercialRegistration, isIqama,
   isLandlineNumber, isMobileNumber, isNationalId, isPostalCode, isSaudiIban, isSaudiId,
   isShortAddress, isTin, isTollFreeNumber, isUnifiedNationalNumber, isVatNumber, normalizeIban,
+  normalizeAndValidateIban, normalizeAndValidatePhoneNumber, normalizeAndValidateShortAddress,
   normalizeShortAddress, validateAdditionalNumber, validateBorderId, validateBuildingNumber,
   validateCommercialRegistration, validateIqama, validateLandlineNumber, validateMobileNumber,
   validateNationalId, validatePostalCode, validateSaudiId, validateShortAddress, validateTin,

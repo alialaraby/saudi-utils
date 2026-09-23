@@ -52,6 +52,10 @@ Explicit normalizers accept only their documented variants:
 - `normalizeShortAddress` uppercases ASCII letters and removes at most one permitted ASCII space.
 
 All return `null` for unsupported or invalid input and are idempotent after success.
+For a single operation with structured errors, use `normalizeAndValidateIban`,
+`normalizeAndValidatePhoneNumber`, or `normalizeAndValidateShortAddress`. Each returns a validated
+canonical value on success, or a code and message on failure. When conversion produced a safe
+candidate, the failure also includes `normalizedValue`. See the [API reference](docs/api.md#normalize-and-validate-together).
 `formatIban` is only a formatter: it accepts a valid, canonical Saudi IBAN and returns `null` for
 lowercase, spaced, invalid, or non-Saudi input. Call `normalizeIban` first when normalization is
 required.

@@ -77,6 +77,12 @@ export function isSaudiIban(value: unknown): value is string {
  * normalizeIban("sa39 1500 0000 1234 5678 9012"); // "SA3915000000123456789012"
  */
 export function normalizeIban(value: unknown): string | null {
+  const normalized = normalizeIbanInput(value);
+  return normalized !== null && isSaudiIban(normalized) ? normalized : null;
+}
+
+/** @internal Produces a candidate without claiming that the IBAN is valid. */
+export function normalizeIbanInput(value: unknown): string | null {
   if (typeof value !== "string") {
     return null;
   }
@@ -99,7 +105,7 @@ export function normalizeIban(value: unknown): string | null {
     }
   }
 
-  return isSaudiIban(normalized) ? normalized : null;
+  return normalized;
 }
 
 /**

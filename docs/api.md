@@ -16,7 +16,8 @@ returns `DetailedValidationResult<T>`:
 
 ```ts
 type DetailedValidationResult<T = string> =
-  { valid: true; value: T } | { valid: false; code: ValidationErrorCode; message: string };
+  | { valid: true; value: T }
+  | { valid: false; code: ValidationErrorCode; message: string; normalizedValue?: string };
 ```
 
 `T` is `NationalAddress` for `validateNationalAddressDetailed` and `string` for the other
@@ -28,6 +29,22 @@ parse `message`. Validation is offline and does not establish issuance, existenc
 ```ts
 validateSaudiIbanDetailed("SA0380000000608010167518");
 // { valid: false, code: "INVALID_CHECKSUM", message: "Saudi IBAN has an invalid checksum." }
+```
+
+## Normalize and validate together
+
+`normalizeAndValidateIban`, `normalizeAndValidateShortAddress`, and
+`normalizeAndValidatePhoneNumber` accept the same representations as their standalone normalizers,
+then apply the corresponding detailed validators. They return `DetailedValidationResult<string>`
+for IBAN and Short Address, or `DetailedValidationResult<NormalizedSaudiPhone>` for phones. A
+successful result contains the canonical value. A failed result contains a code and message; when
+conversion produced a short, safe candidate, `normalizedValue` contains that candidate for
+inspection. Unsupported representations produce `INVALID_FORMAT` without guessing a more
+specific rule. Missing and non-string inputs produce `REQUIRED` and `INVALID_TYPE` respectively.
+
+```ts
+normalizeAndValidateIban("sa03 8000 0000 6080 1016 7519");
+// { valid: true, value: "SA0380000000608010167519" }
 ```
 
 ## Identity
