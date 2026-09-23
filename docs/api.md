@@ -8,6 +8,28 @@ is valid.
 Passing any API is an offline result only. See [validation evidence](evidence.md) for the exact
 claim and source behind each rule.
 
+## Explained validation
+
+Each existing `validateX(value)` keeps its `{ valid, value | code }` result, and each `isX(value)`
+keeps its boolean behavior. For every `validateX`, an opt-in `validateXDetailed(value)` export
+returns `DetailedValidationResult<T>`:
+
+```ts
+type DetailedValidationResult<T = string> =
+  { valid: true; value: T } | { valid: false; code: ValidationErrorCode; message: string };
+```
+
+`T` is `NationalAddress` for `validateNationalAddressDetailed` and `string` for the other
+validators. Detailed validation uses the same rules and error precedence as `validateX`; it does
+not normalize inputs. The code identifies the failure category, and the concise message identifies
+the domain and reason. Messages are English display text; consumers should branch on `code`, not
+parse `message`. Validation is offline and does not establish issuance, existence, or status.
+
+```ts
+validateSaudiIbanDetailed("SA0380000000608010167518");
+// { valid: false, code: "INVALID_CHECKSUM", message: "Saudi IBAN has an invalid checksum." }
+```
+
 ## Identity
 
 | Export               | Signature                                              | Contract                                                                              |
