@@ -76,3 +76,9 @@ export {
 } from "./detailed.js";
 
 export type { DetailedValidationResult } from "./types.js";
+
+export {
+  normalizeAndValidateIban,
+  normalizeAndValidatePhoneNumber,
+  normalizeAndValidateShortAddress,
+} from "./combined.js";
