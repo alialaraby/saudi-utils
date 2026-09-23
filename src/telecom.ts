@@ -17,6 +17,14 @@ function hasE164SaudiPrefix(value: string): value is `+966${string}` {
   return value.startsWith("+966");
 }
 
+/**
+ * Validates a Saudi mobile number in national 05... or +9665... form.
+ *
+ * Requires ASCII digits and no separators; does not verify allocation, reachability, or carrier.
+ *
+ * @param value - Unknown input; only a primitive string in the stated canonical format is accepted.
+ * @returns A result containing the unchanged string when valid, or the first applicable error code.
+ */
 export function validateMobileNumber(value: unknown): ValidationResult {
   const input = checkStringInput(value);
 
@@ -42,10 +50,24 @@ export function validateMobileNumber(value: unknown): ValidationResult {
   return { valid: true, value: input.value };
 }
 
+/**
+ * Checks the national or +966 Saudi mobile number structure.
+ *
+ * @param value - Unknown input; only a primitive string in the stated canonical format is accepted.
+ * @returns True when the input satisfies the stated offline rules; false otherwise.
+ */
 export function isMobileNumber(value: unknown): value is string {
   return validateMobileNumber(value).valid;
 }
 
+/**
+ * Validates a Saudi landline in national 01... or +9661... form with a supported area code.
+ *
+ * Requires ASCII digits and no separators; does not verify allocation or reachability.
+ *
+ * @param value - Unknown input; only a primitive string in the stated canonical format is accepted.
+ * @returns A result containing the unchanged string when valid, or the first applicable error code.
+ */
 export function validateLandlineNumber(value: unknown): ValidationResult {
   const input = checkStringInput(value);
 
@@ -71,10 +93,24 @@ export function validateLandlineNumber(value: unknown): ValidationResult {
   return { valid: true, value: input.value };
 }
 
+/**
+ * Checks the national or +966 Saudi landline structure and area code.
+ *
+ * @param value - Unknown input; only a primitive string in the stated canonical format is accepted.
+ * @returns True when the input satisfies the stated offline rules; false otherwise.
+ */
 export function isLandlineNumber(value: unknown): value is string {
   return validateLandlineNumber(value).valid;
 }
 
+/**
+ * Validates a Saudi toll-free number in 10-digit national 800... form only.
+ *
+ * International forms and 9200 numbers are not accepted; reachability is not verified.
+ *
+ * @param value - Unknown input; only a primitive string in the stated canonical format is accepted.
+ * @returns A result containing the unchanged string when valid, or the first applicable error code.
+ */
 export function validateTollFreeNumber(value: unknown): ValidationResult {
   const input = checkStringInput(value);
 
@@ -97,10 +133,24 @@ export function validateTollFreeNumber(value: unknown): ValidationResult {
   return { valid: true, value: input.value };
 }
 
+/**
+ * Checks the national 800... Saudi toll-free structure only.
+ *
+ * @param value - Unknown input; only a primitive string in the stated canonical format is accepted.
+ * @returns True when the input satisfies the stated offline rules; false otherwise.
+ */
 export function isTollFreeNumber(value: unknown): value is string {
   return validateTollFreeNumber(value).valid;
 }
 
+/**
+ * Normalizes a supported Saudi mobile, landline, or toll-free number.
+ *
+ * Mobile and landline accept national, +966, 966, or 00966 forms and return +966 form. Toll-free accepts national 800 form only. Whitespace, punctuation, extensions, and Unicode digits are rejected.
+ *
+ * @param value - Unknown input; only unseparated primitive ASCII strings in supported forms are accepted.
+ * @returns A kind-tagged canonical phone value, or null when unsupported or invalid.
+ */
 export function normalizePhoneNumber(value: unknown): NormalizedSaudiPhone | null {
   if (typeof value !== "string") {
     return null;
