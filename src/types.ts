@@ -16,6 +16,10 @@ export type ValidationResult =
       code: ValidationErrorCode;
     };
 
+/** A validated value or a stable error code with a short, consumer-facing explanation. */
+export type DetailedValidationResult<T = string> =
+  { valid: true; value: T } | { valid: false; code: ValidationErrorCode; message: string };
+
 export type ValidationEvidence =
   | "official-checksum"
   | "official-structural"

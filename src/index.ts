@@ -54,3 +54,25 @@ export type {
   ValidationEvidence,
   ValidationResult,
 } from "./types.js";
+
+export {
+  validateNationalIdDetailed,
+  validateIqamaDetailed,
+  validateSaudiIdDetailed,
+  validateBorderIdDetailed,
+  validateSaudiIbanDetailed,
+  validateVatNumberDetailed,
+  validateTinDetailed,
+  validateUnifiedNationalNumberDetailed,
+  validateCommercialRegistrationDetailed,
+  validateMobileNumberDetailed,
+  validateLandlineNumberDetailed,
+  validateTollFreeNumberDetailed,
+  validatePostalCodeDetailed,
+  validateBuildingNumberDetailed,
+  validateAdditionalNumberDetailed,
+  validateShortAddressDetailed,
+  validateNationalAddressDetailed,
+} from "./detailed.js";
+
+export type { DetailedValidationResult } from "./types.js";
