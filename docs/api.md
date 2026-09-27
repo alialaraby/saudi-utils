@@ -1,9 +1,9 @@
 # API reference
 
 All APIs are named exports from `saudi-utils`. The package has no default export or public subpath
-exports. Validators accept `unknown`; they never coerce input. Unless noted, detailed validators
-return [`ValidationResult`](#shared-types), and boolean helpers return whether that detailed result
-is valid.
+exports. Validators accept `unknown`; they never coerce input. Unless noted, `validateX` functions
+return [`ValidationResult`](#shared-types), and boolean helpers return whether that result is valid.
+Opt-in `validateXDetailed` functions return `DetailedValidationResult`.
 
 Passing any API is an offline result only. See [validation evidence](evidence.md) for the exact
 claim and source behind each rule.

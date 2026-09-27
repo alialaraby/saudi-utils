@@ -424,6 +424,8 @@ Regexes must be anchored, simple, and free from nested ambiguous repetition. Run
 
 ## 11. Public developer experience requirements
 
+**Status:** Implemented in v0.2.0. The public exports and types in `src/index.ts` are the current contract.
+
 ### 11.1 Public API documentation
 
 - Every exported public function and type must have useful TSDoc/JSDoc that appears in published TypeScript declarations and IDE hover/IntelliSense.
@@ -448,7 +450,7 @@ Regexes must be anchored, simple, and free from nested ambiguous repetition. Run
 ### 11.4 Compatibility and quality
 
 - Keep existing validation and combined API behavior; standardizing standalone normalization return shapes is an intentional breaking change. Keep zero runtime dependencies, strict TypeScript, and the existing test and package quality standards.
-- Before implementation, resolve the public naming of combined operations, the message-bearing result type, and how normalization failures map to error codes, while the standalone phone normalizer returns `string | null`.
+- The implemented combined exports are `normalizeAndValidateIban`, `normalizeAndValidatePhoneNumber`, and `normalizeAndValidateShortAddress`. They return `DetailedValidationResult<string>` for IBAN and Short Address or `DetailedValidationResult<NormalizedSaudiPhone>` for phones. Unsupported representations use `INVALID_FORMAT`; missing and non-string inputs use `REQUIRED` and `INVALID_TYPE`. A safe normalized candidate may appear as `normalizedValue` on failure.
 
 ## 12. Approval baseline
 
