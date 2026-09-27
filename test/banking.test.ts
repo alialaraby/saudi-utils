@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { formatIban, isSaudiIban, normalizeIban, validateSaudiIban } from "../src/index.js";
+import { formatIban, isSaudiIban, canonicalizeIban, validateSaudiIban } from "../src/index.js";
 import type { ValidationResult } from "../src/index.js";
 import {
   REFERENCE_SAUDI_IBAN,
@@ -117,14 +117,14 @@ describe("IBAN normalization", () => {
     [VALID_NON_SAUDI_IBAN.toLowerCase(), VALID_NON_SAUDI_IBAN],
     ["sa", "SA"],
   ])("normalizes approved representation %#", (value, expected) => {
-    expect(normalizeIban(value)).toBe(expected);
+    expect(canonicalizeIban(value)).toBe(expected);
   });
 
   it("is idempotent after successful normalization", () => {
-    const normalized = normalizeIban("sa03 8000 0000 6080 1016 7519");
+    const normalized = canonicalizeIban("sa03 8000 0000 6080 1016 7519");
 
     expect(normalized).toBe(REFERENCE_SAUDI_IBAN);
-    expect(normalizeIban(normalized)).toBe(normalized);
+    expect(canonicalizeIban(normalized)).toBe(normalized);
   });
 
   it.each([
@@ -150,7 +150,7 @@ describe("IBAN normalization", () => {
     "SA03/80000000608010167519",
     "SA03(80000000608010167519)",
   ])("rejects unsupported representation %#", (value) => {
-    expect(normalizeIban(value)).toBeNull();
+    expect(canonicalizeIban(value)).toBeNull();
   });
 });
 
@@ -246,7 +246,7 @@ describe("banking API hardening", () => {
 
     expect(validateSaudiIban(input)).toEqual(validateSaudiIban(input));
     expect(validateSaudiIban(input)).toEqual({ valid: false, code: "INVALID_TYPE" });
-    expect(normalizeIban(input)).toBeNull();
+    expect(canonicalizeIban(input)).toBeNull();
     expect(formatIban(input)).toBeNull();
     expect(coercionAccessed).not.toHaveBeenCalled();
     expect(Object.isFrozen(input)).toBe(true);
@@ -257,7 +257,7 @@ describe("banking API hardening", () => {
 
     expectFailure(validateSaudiIban(input), "INVALID_LENGTH");
     expect(isSaudiIban(input)).toBe(false);
-    expect(normalizeIban(input)).toBe(input);
+    expect(canonicalizeIban(input)).toBe(input);
     expect(formatIban(input)).toBeNull();
   });
 });

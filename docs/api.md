@@ -34,7 +34,7 @@ validateSaudiIbanDetailed("SA0380000000608010167518");
 ## Normalize and validate together
 
 `normalizeAndValidateIban`, `normalizeAndValidateShortAddress`, and
-`normalizeAndValidatePhoneNumber` accept the same representations as their standalone normalizers,
+`normalizeAndValidatePhoneNumber` accept the same representations as their `canonicalizeX` functions,
 then apply the corresponding detailed validators. They return `DetailedValidationResult<string>`
 for IBAN and Short Address, or `DetailedValidationResult<NormalizedSaudiPhone>` for phones. A
 successful result contains the canonical value. A failed result contains a code and message; when
@@ -65,19 +65,20 @@ National ID and Iqama checksum support comes from community implementation evide
 DGA ecosystem; the public normative source does not publish the formula. Border ID validation is
 provisional and structural only.
 
-All standalone `normalizeX` functions return `string | null`: a canonical candidate without validation, or `null` when the documented representation cannot be converted.
+The `canonicalizeX` functions return `string | null`: a canonical candidate without domain validation, or `null` when conversion is unsupported. Legacy `normalizeX` functions preserve v0.1.0 behavior and are deprecated.
 
 ## Banking
 
-| Export              | Signature                              | Contract                                                                                                                               |
-| ------------------- | -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `validateSaudiIban` | `(value: unknown) => ValidationResult` | Validates the canonical 24-character uppercase Saudi structure and MOD-97-10 checksum.                                                 |
-| `isSaudiIban`       | `(value: unknown) => value is string`  | Boolean/type-guard form of Saudi IBAN validation.                                                                                      |
-| `normalizeIban`     | `(value: unknown) => string \| null`   | For primitive strings, removes all ASCII spaces and uppercases ASCII `a-z`, and returns the canonical candidate without validating it. |
-| `formatIban`        | `(value: unknown) => string \| null`   | Groups a valid canonical Saudi IBAN from the left in blocks of four separated by ASCII spaces. It does not normalize first.            |
+| Export              | Signature                              | Contract                                                                                                                    |
+| ------------------- | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `validateSaudiIban` | `(value: unknown) => ValidationResult` | Validates the canonical 24-character uppercase Saudi structure and MOD-97-10 checksum.                                      |
+| `isSaudiIban`       | `(value: unknown) => value is string`  | Boolean/type-guard form of Saudi IBAN validation.                                                                           |
+| `canonicalizeIban`  | `(value: unknown) => string \| null`   | Removes ASCII spaces and uppercases ASCII letters without domain validation.                                                |
+| `normalizeIban`     | `(value: unknown) => string \| null`   | Deprecated v0.1.0 API: returns the converted IBAN only if Saudi validation passes.                                          |
+| `formatIban`        | `(value: unknown) => string \| null`   | Groups a valid canonical Saudi IBAN from the left in blocks of four separated by ASCII spaces. It does not normalize first. |
 
 Canonical Saudi IBAN layout is `SA`, two check digits, two numeric bank-identifier digits, then 18
-uppercase ASCII alphanumeric characters. `normalizeIban` rejects non-ASCII whitespace, other
+uppercase ASCII alphanumeric characters. `canonicalizeIban` rejects non-ASCII whitespace, other
 separators, Unicode numerals, invisible characters, non-strings, and inputs with no alphanumeric content. It can return a candidate with an invalid country code, length, or checksum.
 `formatIban` returns `null` for lowercase, already spaced, checksum-invalid, or non-Saudi input.
 
@@ -100,17 +101,18 @@ broader structural grammars. These APIs do not infer registry type or status.
 
 ## Telecom
 
-| Export                   | Signature                              | Contract                                                                                    |
-| ------------------------ | -------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `validateMobileNumber`   | `(value: unknown) => ValidationResult` | National `05XXXXXXXX` or E.164 `+9665XXXXXXXX`.                                             |
-| `isMobileNumber`         | `(value: unknown) => value is string`  | Boolean/type-guard mobile structure validation.                                             |
-| `validateLandlineNumber` | `(value: unknown) => ValidationResult` | National or E.164 form with geographic code `011`, `012`, `013`, `014`, `016`, or `017`.    |
-| `isLandlineNumber`       | `(value: unknown) => value is string`  | Boolean/type-guard landline structure validation.                                           |
-| `validateTollFreeNumber` | `(value: unknown) => ValidationResult` | National `800XXXXXXX` only. International-looking forms and `9200` numbers are unsupported. |
-| `isTollFreeNumber`       | `(value: unknown) => value is string`  | Boolean/type-guard toll-free structure validation.                                          |
-| `normalizePhoneNumber`   | `(value: unknown) => string \| null`   | Returns the canonical string for one supported unseparated representation.                  |
+| Export                    | Signature                                          | Contract                                                                                    |
+| ------------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `validateMobileNumber`    | `(value: unknown) => ValidationResult`             | National `05XXXXXXXX` or E.164 `+9665XXXXXXXX`.                                             |
+| `isMobileNumber`          | `(value: unknown) => value is string`              | Boolean/type-guard mobile structure validation.                                             |
+| `validateLandlineNumber`  | `(value: unknown) => ValidationResult`             | National or E.164 form with geographic code `011`, `012`, `013`, `014`, `016`, or `017`.    |
+| `isLandlineNumber`        | `(value: unknown) => value is string`              | Boolean/type-guard landline structure validation.                                           |
+| `validateTollFreeNumber`  | `(value: unknown) => ValidationResult`             | National `800XXXXXXX` only. International-looking forms and `9200` numbers are unsupported. |
+| `isTollFreeNumber`        | `(value: unknown) => value is string`              | Boolean/type-guard toll-free structure validation.                                          |
+| `canonicalizePhoneNumber` | `(value: unknown) => string \| null`               | Returns a canonical candidate without domain validation.                                    |
+| `normalizePhoneNumber`    | `(value: unknown) => NormalizedSaudiPhone \| null` | Deprecated v0.1.0 API: returns a kind-tagged validated phone or null.                       |
 
-For mobile and landline values, `normalizePhoneNumber` accepts canonical national, `+966`, `966`,
+For mobile and landline values, `canonicalizePhoneNumber` accepts canonical national, `+966`, `966`,
 or `00966` form and returns canonical `+966...`. It accepts toll-free numbers only in national `800...` form and returns that form. It rejects whitespace, punctuation, extensions, Unicode
 digits, malformed/doubled country codes, and international toll-free forms. Normalization does not assert a valid service prefix or length.
 
@@ -119,20 +121,21 @@ carrier. Prefixes cannot identify the current carrier because numbers are portab
 
 ## National Address
 
-| Export                     | Signature                                             | Contract                                                                               |
-| -------------------------- | ----------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| `validatePostalCode`       | `(value: unknown) => ValidationResult`                | Exactly 5 ASCII digits.                                                                |
-| `isPostalCode`             | `(value: unknown) => value is string`                 | Boolean/type-guard postal-code structure validation.                                   |
-| `validateBuildingNumber`   | `(value: unknown) => ValidationResult`                | Exactly 4 ASCII digits.                                                                |
-| `isBuildingNumber`         | `(value: unknown) => value is string`                 | Boolean/type-guard building-number structure validation.                               |
-| `validateAdditionalNumber` | `(value: unknown) => ValidationResult`                | Exactly 4 ASCII digits.                                                                |
-| `isAdditionalNumber`       | `(value: unknown) => value is string`                 | Boolean/type-guard additional-number structure validation.                             |
-| `validateShortAddress`     | `(value: unknown) => ValidationResult`                | Exactly 4 uppercase ASCII letters followed by 4 ASCII digits.                          |
-| `isShortAddress`           | `(value: unknown) => value is string`                 | Boolean/type-guard Short Address structure validation.                                 |
-| `normalizeShortAddress`    | `(value: unknown) => string \| null`                  | Uppercases four ASCII letters and removes zero or one ASCII space before ASCII digits. |
-| `validateNationalAddress`  | `(value: unknown) => NationalAddressValidationResult` | Validates the six-field National Address object contract below.                        |
+| Export                     | Signature                                             | Contract                                                                                                              |
+| -------------------------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `validatePostalCode`       | `(value: unknown) => ValidationResult`                | Exactly 5 ASCII digits.                                                                                               |
+| `isPostalCode`             | `(value: unknown) => value is string`                 | Boolean/type-guard postal-code structure validation.                                                                  |
+| `validateBuildingNumber`   | `(value: unknown) => ValidationResult`                | Exactly 4 ASCII digits.                                                                                               |
+| `isBuildingNumber`         | `(value: unknown) => value is string`                 | Boolean/type-guard building-number structure validation.                                                              |
+| `validateAdditionalNumber` | `(value: unknown) => ValidationResult`                | Exactly 4 ASCII digits.                                                                                               |
+| `isAdditionalNumber`       | `(value: unknown) => value is string`                 | Boolean/type-guard additional-number structure validation.                                                            |
+| `validateShortAddress`     | `(value: unknown) => ValidationResult`                | Exactly 4 uppercase ASCII letters followed by 4 ASCII digits.                                                         |
+| `isShortAddress`           | `(value: unknown) => value is string`                 | Boolean/type-guard Short Address structure validation.                                                                |
+| `canonicalizeShortAddress` | `(value: unknown) => string \| null`                  | Uppercases four ASCII letters and removes zero or one ASCII space before ASCII digits without validating digit count. |
+| `normalizeShortAddress`    | `(value: unknown) => string \| null`                  | Deprecated v0.1.0 API: returns the converted address only with exactly four digits.                                   |
+| `validateNationalAddress`  | `(value: unknown) => NationalAddressValidationResult` | Validates the six-field National Address object contract below.                                                       |
 
-`normalizeShortAddress` can return a candidate with the wrong digit count. It rejects leading/trailing
+`canonicalizeShortAddress` can return a candidate with the wrong digit count. It rejects leading/trailing
 whitespace, multiple or internal spaces, hyphens, Unicode letters or digits, invisible characters,
 and non-strings.
 

@@ -132,17 +132,28 @@ export function isShortAddress(value: unknown): value is string {
 }
 
 /**
- * Converts a supported Short Address representation to canonical form without validating it.
+ * Converts a supported Short Address representation and returns it only when validation passes.
  *
  * Uppercases ASCII letters and removes at most one ASCII space between the groups; rejects other separators and Unicode characters.
  *
  * @param value - Unknown input; only a primitive string is accepted.
- * @returns Four uppercase ASCII letters followed by the supplied ASCII digits, even when the digit count is invalid; null when the representation is unsupported.
+ * @returns A valid canonical eight-character Short Address, or null when conversion or validation fails.
+ * @deprecated Use canonicalizeShortAddress for transform-only normalization, then validateShortAddress when needed.
  *
  * @example
  * normalizeShortAddress("abcd 1234"); // "ABCD1234"
  */
 export function normalizeShortAddress(value: unknown): string | null {
+  const candidate = normalizeShortAddressInput(value);
+  return candidate !== null && validateShortAddress(candidate).valid ? candidate : null;
+}
+
+/**
+ * Converts a supported Short Address representation without validating its digit count.
+ * @param value - Primitive string with four ASCII letters, optional one ASCII space, then ASCII digits.
+ * @returns The uppercase candidate, or null when conversion is unsupported.
+ */
+export function canonicalizeShortAddress(value: unknown): string | null {
   return normalizeShortAddressInput(value);
 }
 

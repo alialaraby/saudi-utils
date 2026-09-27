@@ -13,6 +13,9 @@ import type {
 } from "../src/index.js";
 
 const EXPECTED_RUNTIME_EXPORTS = [
+  "canonicalizeIban",
+  "canonicalizePhoneNumber",
+  "canonicalizeShortAddress",
   "formatIban",
   "getSaudiIdType",
   "isAdditionalNumber",

@@ -2,9 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import {
   formatIban,
-  normalizeIban,
-  normalizePhoneNumber,
-  normalizeShortAddress,
+  canonicalizeIban,
+  canonicalizePhoneNumber,
+  canonicalizeShortAddress,
   validateAdditionalNumber,
   validateBorderId,
   validateBuildingNumber,
@@ -61,11 +61,11 @@ describe("coarse hostile-input execution", () => {
     "rejects 1 MiB inputs across representation helpers without exception",
     { timeout: 30_000 },
     () => {
-      expect(normalizeIban(ONE_MIB_ASCII)?.length).toBe(ONE_MIB_ASCII.length);
-      expect(normalizeIban(ONE_MIB_PUNCTUATION)).toBeNull();
+      expect(canonicalizeIban(ONE_MIB_ASCII)?.length).toBe(ONE_MIB_ASCII.length);
+      expect(canonicalizeIban(ONE_MIB_PUNCTUATION)).toBeNull();
       expect(formatIban(ONE_MIB_ASCII)).toBeNull();
-      expect(normalizePhoneNumber(ONE_MIB_ASCII)).toBeNull();
-      expect(normalizeShortAddress(ONE_MIB_ASCII)).toBeNull();
+      expect(canonicalizePhoneNumber(ONE_MIB_ASCII)).toBeNull();
+      expect(canonicalizeShortAddress(ONE_MIB_ASCII)).toBeNull();
     },
   );
 

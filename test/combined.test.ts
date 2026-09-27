@@ -4,9 +4,9 @@ import {
   normalizeAndValidateIban,
   normalizeAndValidatePhoneNumber,
   normalizeAndValidateShortAddress,
-  normalizeIban,
-  normalizePhoneNumber,
-  normalizeShortAddress,
+  canonicalizeIban,
+  canonicalizePhoneNumber,
+  canonicalizeShortAddress,
   validateSaudiIbanDetailed,
   validateShortAddressDetailed,
 } from "../src/index.js";
@@ -34,7 +34,7 @@ describe("combined normalization and validation", () => {
     (input) => {
       expect(normalizeAndValidateIban(input)).toEqual({ valid: true, value: IBAN });
       expect(normalizeAndValidateIban(input)).toEqual(
-        validateSaudiIbanDetailed(normalizeIban(input)),
+        validateSaudiIbanDetailed(canonicalizeIban(input)),
       );
     },
   );
@@ -47,7 +47,7 @@ describe("combined normalization and validation", () => {
       "Saudi IBAN has an invalid checksum.",
       candidate,
     );
-    expect(normalizeIban("sa03 8000 0000 6080 1016 7518")).toBe(candidate);
+    expect(canonicalizeIban("sa03 8000 0000 6080 1016 7518")).toBe(candidate);
     expect(validateSaudiIbanDetailed(candidate)).toEqual({
       valid: false,
       code: "INVALID_CHECKSUM",
@@ -61,7 +61,7 @@ describe("combined normalization and validation", () => {
       value: "ABCD0123",
     });
     expect(normalizeAndValidateShortAddress("ABCD0123")).toEqual(
-      validateShortAddressDetailed(normalizeShortAddress("ABCD0123")),
+      validateShortAddressDetailed(canonicalizeShortAddress("ABCD0123")),
     );
     expectFailure(
       normalizeAndValidateShortAddress("abcd 12"),
@@ -69,7 +69,7 @@ describe("combined normalization and validation", () => {
       "Short Address has an invalid length.",
       "ABCD12",
     );
-    expect(normalizeShortAddress("abcd 12")).toBe("ABCD12");
+    expect(canonicalizeShortAddress("abcd 12")).toBe("ABCD12");
   });
 
   it.each([
@@ -79,7 +79,7 @@ describe("combined normalization and validation", () => {
   ] as const)("normalizes and validates a phone number: %s", (input, expected) => {
     expect(normalizeAndValidatePhoneNumber(input)).toEqual({ valid: true, value: expected });
     expect(normalizeAndValidatePhoneNumber(input).valid).toBe(true);
-    expect(normalizePhoneNumber(input)).toBe(expected.value);
+    expect(canonicalizePhoneNumber(input)).toBe(expected.value);
   });
 
   it("reports a phone prefix failure on the normalized candidate", () => {
@@ -89,7 +89,7 @@ describe("combined normalization and validation", () => {
       "Landline number has an invalid prefix.",
       "+966152345678",
     );
-    expect(normalizePhoneNumber("00966152345678")).toBe("+966152345678");
+    expect(canonicalizePhoneNumber("00966152345678")).toBe("+966152345678");
     expectFailure(
       normalizeAndValidatePhoneNumber("0601234567"),
       "INVALID_PREFIX",
@@ -105,7 +105,7 @@ describe("combined normalization and validation", () => {
       "Toll-free number has an invalid length.",
       "800123456",
     );
-    expect(normalizePhoneNumber("800123456")).toBe("800123456");
+    expect(canonicalizePhoneNumber("800123456")).toBe("800123456");
   });
 
   it.each([

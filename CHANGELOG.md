@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 intends to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.3.0 - 2026-09-27
+
+### Added
+
+- `canonicalizeIban`, `canonicalizePhoneNumber`, and `canonicalizeShortAddress` expose transform-only `string | null` candidates. Validation remains a separate step.
+- Packed-artifact runtime checks for Node 18, 20, 22, and 24.
+
+### Changed
+
+- Restored compatibility with the v0.1.0 normalization contracts: `normalizeIban` and `normalizeShortAddress` again return `null` for invalid candidates, and `normalizePhoneNumber` again returns a kind-tagged `NormalizedSaudiPhone | null`. These APIs remain available but are deprecated in favor of the new canonicalizers.
+- `normalizeAndValidateIban`, `normalizeAndValidatePhoneNumber`, and `normalizeAndValidateShortAddress` use canonicalization followed by detailed validation.
+- Declared Node.js 18 or newer for runtime consumers. Development and package checks continue on newer supported tooling versions.
+- Updated README and API guidance for the canonicalization and compatibility APIs.
+
 ## 0.2.1 - 2026-09-27
 
 ### Changed

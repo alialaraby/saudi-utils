@@ -45,13 +45,13 @@ Each public API entry in the README and evidence document must state what is che
 - All numeric grammar uses ASCII `[0-9]`, never `\d`.
 - Arabic-Indic, Persian, full-width, and mixed-script digits are rejected.
 - Identifiers retain leading zeroes and are never represented as JavaScript numbers.
-- Explicit normalizers are separate APIs and document their exact accepted transformations. They return a mechanically canonical string candidate directly even when domain validation fails; `null` means the representation cannot produce a meaningful candidate. Every public `normalizeX()` returns `string | null` without metadata or validation.
+- Explicit `canonicalizeX()` functions return a mechanically canonical `string | null` candidate without domain validation; `null` means the representation cannot produce a meaningful candidate. Deprecated `normalizeX()` APIs preserve v0.1.0 contracts.
 
 Example:
 
 ```ts
 isSaudiIban("SA39 1500 0000 1234 5678 9012"); // false
-normalizeIban("SA39 1500 0000 1234 5678 9012"); // canonical value or null
+canonicalizeIban("SA39 1500 0000 1234 5678 9012"); // canonical candidate or null
 ```
 
 ### 3.2 Result model
@@ -126,11 +126,11 @@ Validators return the first applicable error in this order:
 
 #### Saudi IBAN
 
-- **APIs:** `isSaudiIban`, `validateSaudiIban`, `normalizeIban`, `formatIban`
+- **APIs:** `isSaudiIban`, `validateSaudiIban`, `canonicalizeIban`, deprecated `normalizeIban`, `formatIban`
 - **Canonical input:** exactly 24 uppercase ASCII alphanumeric characters; `SA`; two check digits; two numeric bank-identifier digits; then 18 uppercase ASCII alphanumeric characters.
 - **Checksum:** ISO 13616 / MOD-97-10, computed incrementally without converting the complete numeric expansion to a JavaScript number.
 - **Evidence:** `official-checksum`.
-- **Normalizer:** strings only; remove ASCII spaces (`U+0020`) and uppercase ASCII `a-z`; reject all other separators, NBSP, invisible characters, and non-strings. Return a non-empty canonical candidate even when its country code, length, or checksum is invalid; return `null` for unsupported representations or no alphanumeric content.
+- **Canonicalizer:** strings only; remove ASCII spaces (`U+0020`) and uppercase ASCII `a-z`; reject all other separators, NBSP, invisible characters, and non-strings. Return a non-empty canonical candidate even when its country code, length, or checksum is invalid; return `null` for unsupported representations or no alphanumeric content. Deprecated `normalizeIban` returns `null` unless Saudi validation also passes.
 - **Formatter:** accept only a valid canonical Saudi IBAN and group from the left in blocks of four with one ASCII space; return string or `null`.
 - **Does not prove:** bank-code allocation, account existence, ownership, state, or ability to receive funds.
 
@@ -199,11 +199,11 @@ The CST National Numbering Plan is the structural basis. Number portability proh
 
 #### Phone normalization
 
-- **API:** `normalizePhoneNumber`
+- **APIs:** `canonicalizePhoneNumber`; deprecated `normalizePhoneNumber`
 - **Mobile/landline accepted representations:** unseparated ASCII-digit national form, `+966...`, `966...`, or `00966...`.
 - **Toll-free accepted representation:** national `800...` only; validation checks its length.
 - **Rejected:** punctuation, internal or external whitespace, extensions, Unicode digits, double country codes, and malformed prefixes.
-- **Return type:** `string | null`. Mobile and landline candidates use `+966...`; toll-free candidates use national `800...`. The returned candidate may have an invalid prefix or length. `null` means the documented representation cannot be converted. Successful normalization is idempotent. Phone classification remains part of combined normalization and validation results only.
+- **Return type:** `string | null`. Mobile and landline candidates use `+966...`; toll-free candidates use national `800...`. The returned candidate may have an invalid prefix or length. `null` means the documented representation cannot be converted. Successful normalization is idempotent. The deprecated `normalizePhoneNumber` instead returns `NormalizedSaudiPhone | null` after validation, preserving v0.1.0 classification.
 
 ### 4.5 National Address
 
@@ -218,7 +218,7 @@ The CST National Numbering Plan is the structural basis. Number portability proh
 
 Leading zeroes are preserved. Structural validation does not establish allocation or existence.
 
-`normalizeShortAddress` accepts strings only, uppercases ASCII `a-z`, and removes at most one ASCII space between the four-letter and four-digit groups. It rejects hyphens, multiple/internal spaces, Unicode letters, invisible characters, and non-strings. It returns the canonical candidate even when the digit count is invalid, or `null` for unsupported representations, and is idempotent.
+`canonicalizeShortAddress` accepts strings only, uppercases ASCII `a-z`, and removes at most one ASCII space between the four-letter and four-digit groups. It rejects hyphens, multiple/internal spaces, Unicode letters, invisible characters, and non-strings. It returns the canonical candidate even when the digit count is invalid, or `null` for unsupported representations, and is idempotent. Deprecated `normalizeShortAddress` returns null when the candidate fails the four-digit rule.
 
 #### National Address object
 
@@ -273,6 +273,7 @@ validateBorderId;
 // banking
 isSaudiIban;
 validateSaudiIban;
+canonicalizeIban;
 normalizeIban;
 formatIban;
 
@@ -293,6 +294,7 @@ isLandlineNumber;
 validateLandlineNumber;
 isTollFreeNumber;
 validateTollFreeNumber;
+canonicalizePhoneNumber;
 normalizePhoneNumber;
 
 // National Address
@@ -304,6 +306,7 @@ isAdditionalNumber;
 validateAdditionalNumber;
 isShortAddress;
 validateShortAddress;
+canonicalizeShortAddress;
 normalizeShortAddress;
 validateNationalAddress;
 ```
@@ -315,7 +318,7 @@ Every name above is a named root export. V1 has no default export.
 ### 6.1 Runtime and modules
 
 - ESM-only package with `"type": "module"`.
-- Node.js `>=22`; CI covers supported Node 22, 24, and 26 lines while available.
+- Node.js `>=18` for packed runtime consumers; repository development checks use supported tooling Node versions. CI exercises packed consumers on 18, 20, 22, and 24.
 - Browser-compatible wherever ESM and standard JavaScript are supported; runtime code must not import Node built-ins or touch process/global state.
 - TypeScript compiled by `tsc`; no V1 bundler.
 - `target: "ES2022"`, `module: "NodeNext"`, `moduleResolution: "NodeNext"`, strict checking, declarations, declaration maps, and source maps.
@@ -343,7 +346,7 @@ Illustrative metadata:
     }
   },
   "files": ["dist", "README.md", "LICENSE"],
-  "engines": { "node": ">=22" }
+  "engines": { "node": ">=18" }
 }
 ```
 
@@ -436,7 +439,7 @@ Regexes must be anchored, simple, and free from nested ambiguous repetition. Run
 ### 11.2 Combined normalization and validation
 
 - For each value with both a public normalizer and validator, provide one public operation that normalizes the input first, validates the normalized value, and returns that canonical value on success.
-- Use one consistent naming and API convention across supported domains. Use the standardized `string | null` standalone normalization contract and preserve `validateX()` behavior.
+- Use one consistent naming and API convention across supported domains. Use the standardized `string | null` `canonicalizeX()` contract, preserve deprecated v0.1.0 `normalizeX()` behavior, and preserve `validateX()` behavior.
 - Compose existing normalization and validation primitives where practical; do not duplicate domain rules.
 - Failed normalization or validation must return a deterministic failure compatible with the shared result/error model. Do not treat a failed normalizer as proof of a more specific validation error than the available evidence supports.
 
@@ -449,7 +452,7 @@ Regexes must be anchored, simple, and free from nested ambiguous repetition. Run
 
 ### 11.4 Compatibility and quality
 
-- Keep existing validation and combined API behavior; standardizing standalone normalization return shapes is an intentional breaking change. Keep zero runtime dependencies, strict TypeScript, and the existing test and package quality standards.
+- Keep existing validation and combined API behavior; the v0.1.0 standalone normalization contracts are restored and deprecated. Keep zero runtime dependencies, strict TypeScript, and the existing test and package quality standards.
 - The implemented combined exports are `normalizeAndValidateIban`, `normalizeAndValidatePhoneNumber`, and `normalizeAndValidateShortAddress`. They return `DetailedValidationResult<string>` for IBAN and Short Address or `DetailedValidationResult<NormalizedSaudiPhone>` for phones. Unsupported representations use `INVALID_FORMAT`; missing and non-string inputs use `REQUIRED` and `INVALID_TYPE`. A safe normalized candidate may appear as `normalizedValue` on failure.
 
 ## 12. Approval baseline

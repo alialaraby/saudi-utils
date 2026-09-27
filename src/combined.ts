@@ -1,5 +1,5 @@
-import { normalizeShortAddressInput } from "./address.js";
-import { normalizeIbanInput } from "./banking.js";
+import { canonicalizeShortAddress } from "./address.js";
+import { canonicalizeIban } from "./banking.js";
 import {
   validateLandlineNumberDetailed,
   validateMobileNumberDetailed,
@@ -7,7 +7,7 @@ import {
   validateShortAddressDetailed,
   validateTollFreeNumberDetailed,
 } from "./detailed.js";
-import { normalizePhoneNumberInput } from "./telecom.js";
+import { canonicalizePhoneNumber } from "./telecom.js";
 import type {
   DetailedValidationResult,
   NormalizedSaudiPhone,
@@ -46,26 +46,26 @@ function withCandidate<T>(
 }
 
 /**
- * Normalizes and validates a Saudi IBAN using the same rules as normalizeIban and validateSaudiIbanDetailed.
+ * Normalizes and validates a Saudi IBAN using canonicalizeIban and validateSaudiIbanDetailed.
  * @param value - Primitive string; ASCII spaces are removed and ASCII letters are uppercased.
  * @returns The validated uppercase IBAN, or a code and message. A safe candidate is included on validation failure.
  * @example
  * normalizeAndValidateIban("sa03 8000 0000 6080 1016 7519"); // { valid: true, value: "SA0380000000608010167519" }
  */
 export function normalizeAndValidateIban(value: unknown): DetailedValidationResult<string> {
-  const candidate = normalizeIbanInput(value);
+  const candidate = canonicalizeIban(value);
   return candidate === null
     ? unsupportedInput(value, "Saudi IBAN")
     : withCandidate(validateSaudiIbanDetailed(candidate), candidate);
 }
 
 /**
- * Normalizes and validates a Saudi Short Address using the same rules as normalizeShortAddress and validateShortAddressDetailed.
+ * Normalizes and validates a Saudi Short Address using canonicalizeShortAddress and validateShortAddressDetailed.
  * @param value - Primitive string with four ASCII letters, optional one ASCII space, then ASCII digits.
  * @returns The validated uppercase eight-character address, or a code and message with a safe candidate when available.
  */
 export function normalizeAndValidateShortAddress(value: unknown): DetailedValidationResult<string> {
-  const candidate = normalizeShortAddressInput(value);
+  const candidate = canonicalizeShortAddress(value);
   return candidate === null
     ? unsupportedInput(value, "Short Address")
     : withCandidate(validateShortAddressDetailed(candidate), candidate);
@@ -80,7 +80,7 @@ export function normalizeAndValidateShortAddress(value: unknown): DetailedValida
 export function normalizeAndValidatePhoneNumber(
   value: unknown,
 ): DetailedValidationResult<NormalizedSaudiPhone> {
-  const candidate = normalizePhoneNumberInput(value);
+  const candidate = canonicalizePhoneNumber(value);
 
   if (candidate === null) {
     return unsupportedInput(value, "Phone number");

@@ -5,7 +5,7 @@ import {
   isLandlineNumber,
   isMobileNumber,
   isTollFreeNumber,
-  normalizePhoneNumber,
+  canonicalizePhoneNumber,
   validateLandlineNumber,
   validateMobileNumber,
   validateTollFreeNumber,
@@ -117,7 +117,7 @@ describe("toll-free validation", () => {
     "rejects international-looking representation %s",
     (value) => {
       expect(validateTollFreeNumber(value).valid).toBe(false);
-      expect(normalizePhoneNumber(value)).toBeNull();
+      expect(canonicalizePhoneNumber(value)).toBeNull();
     },
   );
 });
@@ -138,7 +138,7 @@ describe("phone normalization", () => {
     ["00966152345678", "landline", "+966152345678"],
     ["800123456", "toll-free", "800123456"],
   ] as const)("normalizes %s to %s", (input, _kind, value) => {
-    expect(normalizePhoneNumber(input)).toBe(value);
+    expect(canonicalizePhoneNumber(input)).toBe(value);
   });
 
   it.each([
@@ -148,10 +148,10 @@ describe("phone normalization", () => {
     { kind: "mobile", value: "+966601234567" },
     { kind: "landline", value: "+966152345678" },
   ] as const)("is idempotent for canonical $kind output", ({ value }) => {
-    const first = normalizePhoneNumber(value);
+    const first = canonicalizePhoneNumber(value);
 
     expect(first).not.toBeNull();
-    expect(normalizePhoneNumber(first)).toBe(first);
+    expect(canonicalizePhoneNumber(first)).toBe(first);
   });
 
   it.each([
@@ -168,7 +168,7 @@ describe("phone normalization", () => {
     "00966+501234567",
     "000966501234567",
   ])("rejects malformed, duplicated, missing, or mixed prefix %s", (value) => {
-    expect(normalizePhoneNumber(value)).toBeNull();
+    expect(canonicalizePhoneNumber(value)).toBeNull();
   });
 
   it.each([
@@ -192,18 +192,18 @@ describe("phone normalization", () => {
     "０５０１２３４５６７",
     "05٠1234567",
   ])("rejects formatted, extended, whitespace, invisible, or Unicode input %#", (value) => {
-    expect(normalizePhoneNumber(value)).toBeNull();
+    expect(canonicalizePhoneNumber(value)).toBeNull();
   });
 
   it.each([undefined, null, 501234567, 1n, new String(MOBILE_NATIONAL), [], {}])(
     "rejects unsupported input %# without coercion",
     (value) => {
-      expect(normalizePhoneNumber(value)).toBeNull();
+      expect(canonicalizePhoneNumber(value)).toBeNull();
     },
   );
 
   it("rejects an extremely long input", () => {
-    expect(normalizePhoneNumber("9".repeat(1024 * 1024))).toBeNull();
+    expect(canonicalizePhoneNumber("9".repeat(1024 * 1024))).toBeNull();
   });
 });
 
@@ -268,7 +268,7 @@ describe.each(validators)(
       expect(validate(input)).toEqual(validate(input));
       expectFailure(validate(input), "INVALID_TYPE");
       expect(isValid(input)).toBe(false);
-      expect(normalizePhoneNumber(input)).toBeNull();
+      expect(canonicalizePhoneNumber(input)).toBeNull();
       expect(coercionAccessed).not.toHaveBeenCalled();
       expect(Object.isFrozen(input)).toBe(true);
     });

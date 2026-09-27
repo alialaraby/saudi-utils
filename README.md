@@ -4,14 +4,14 @@
 normalization of common Saudi identity, banking, business, telecom, and National Address data.
 It provides deterministic errors, evidence-labelled rules, and no runtime dependencies.
 
-## What's new
+## What's new in v0.3.0
 
 - Improved TSDoc in published declarations for IDE IntelliSense.
 - Opt-in `validateXDetailed()` functions add a machine-readable failure `code` and a short `message`.
 - `normalizeAndValidateIban()`, `normalizeAndValidatePhoneNumber()`, and
   `normalizeAndValidateShortAddress()` combine conversion with detailed validation.
-- Every standalone `normalizeX()` returns `string | null`. Normalization produces a canonical
-  candidate; validation separately decides whether it meets domain rules.
+- New `canonicalizeX()` functions return `string | null` candidates without domain validation.
+  The v0.1.0 `normalizeX()` functions remain available for compatibility and are deprecated.
 
 ## Installation
 
@@ -21,19 +21,19 @@ npm install saudi-utils
 
 ## Quick start
 
-`saudi-utils` is ESM-only, supports Node.js 22 and newer, and includes TypeScript declarations.
+`saudi-utils` is ESM-only, supports Node.js 18 and newer, and includes TypeScript declarations.
 There is no default export.
 
 ```ts
 import {
   isSaudiIban,
-  normalizeIban,
+  canonicalizeIban,
   normalizeAndValidateIban,
   validateSaudiIban,
   validateSaudiIbanDetailed,
 } from "saudi-utils";
 
-normalizeIban("sa03 8000 0000 6080 1016 7519"); // "SA0380000000608010167519"
+canonicalizeIban("sa03 8000 0000 6080 1016 7519"); // "SA0380000000608010167519"
 isSaudiIban("SA0380000000608010167519"); // true (boolean validation)
 validateSaudiIban("SA0380000000608010167518"); // { valid: false, code: "INVALID_CHECKSUM" }
 validateSaudiIbanDetailed("SA0380000000608010167518");
@@ -50,39 +50,36 @@ Validators are deliberately strict. They accept `unknown`, but only primitive st
 valid identifiers. They do not trim, coerce, remove punctuation, change case, or translate
 Unicode numerals. Canonical numeric values use ASCII digits and preserve leading zeroes.
 
-The four responsibilities have distinct return shapes:
+The APIs have distinct responsibilities:
 
-| Operation              | Example                            | Return                                                        |
-| ---------------------- | ---------------------------------- | ------------------------------------------------------------- |
-| Normalize              | `normalizeIban(input)`             | Canonical `string \| null`                                    |
-| Boolean validation     | `isSaudiIban(input)`               | `boolean`                                                     |
-| Detailed validation    | `validateSaudiIbanDetailed(input)` | `{ valid: true, value }` or `{ valid: false, code, message }` |
-| Normalize and validate | `normalizeAndValidateIban(input)`  | Detailed result; failures may include `normalizedValue`       |
+| Operation               | Example                            | Return                                                        |
+| ----------------------- | ---------------------------------- | ------------------------------------------------------------- |
+| Canonical normalization | `canonicalizeIban(input)`          | Candidate `string \| null`; no domain validation              |
+| Boolean validation      | `isSaudiIban(input)`               | `boolean`                                                     |
+| Detailed validation     | `validateSaudiIbanDetailed(input)` | `{ valid: true, value }` or `{ valid: false, code, message }` |
+| Normalize and validate  | `normalizeAndValidateIban(input)`  | Detailed result; failures may include `normalizedValue`       |
+| Legacy normalization    | `normalizeIban(input)`             | Validated IBAN or `null` (deprecated)                         |
 
-Standalone normalizers accept only their documented variants:
-
-- `normalizeIban` removes ASCII spaces and uppercases ASCII letters.
-- `normalizePhoneNumber` accepts specific unseparated Saudi national and country-code forms.
-- `normalizeShortAddress` uppercases ASCII letters and removes at most one permitted ASCII space.
-
-Normalization does not determine domain validity. A normalizable but invalid input can still return
-a normalized string; validation is responsible for determining validity:
+`canonicalizeIban` removes ASCII spaces and uppercases ASCII letters;
+`canonicalizePhoneNumber` accepts supported unseparated Saudi national and country-code forms;
+`canonicalizeShortAddress` uppercases ASCII letters and removes at most one permitted ASCII space.
+They return `null` only when conversion is unsupported, and are idempotent on successful candidates.
+Normalization does not determine domain validity:
 
 ```ts
-normalizeIban("sa03 8000 0000 6080 1016 7518"); // "SA0380000000608010167518"
+canonicalizeIban("sa03 8000 0000 6080 1016 7518"); // "SA0380000000608010167518"
+normalizeIban("sa03 8000 0000 6080 1016 7518"); // null (v0.1.0 behavior)
 normalizeAndValidateIban("sa03 8000 0000 6080 1016 7518");
 // { valid: false, code: "INVALID_CHECKSUM", message: "Saudi IBAN has an invalid checksum.", normalizedValue: "SA0380000000608010167518" }
 ```
 
-Normalizers return `null` when the documented representation cannot produce a meaningful candidate,
-and are idempotent after success.
+The deprecated `normalizeIban` and `normalizeShortAddress` return `null` when the converted value
+fails validation. Deprecated `normalizePhoneNumber` returns a validated
+`{ kind: "mobile" | "landline" | "toll-free", value }` object or `null`.
 For a single operation with structured errors, use `normalizeAndValidateIban`,
-`normalizeAndValidatePhoneNumber`, or `normalizeAndValidateShortAddress`. Each returns a validated
-canonical value on success, or a code and message on failure. When conversion produced a safe
-candidate, the failure also includes `normalizedValue`. See the [API reference](https://github.com/alialaraby/saudi-utils/blob/main/docs/api.md#normalize-and-validate-together).
-`formatIban` is only a formatter: it accepts a valid, canonical Saudi IBAN and returns `null` for
-lowercase, spaced, invalid, or non-Saudi input. Call `normalizeIban` first when normalization is
-required.
+`normalizeAndValidatePhoneNumber`, or `normalizeAndValidateShortAddress`. These use canonical
+normalization before validation. See the [API reference](https://github.com/alialaraby/saudi-utils/blob/main/docs/api.md#normalize-and-validate-together).
+`formatIban` accepts a valid canonical IBAN and returns `null` otherwise.
 
 Existing `validateX()` functions return the shared result:
 
@@ -109,14 +106,14 @@ Every public value is a named root export. See
 [the detailed API reference](https://github.com/alialaraby/saudi-utils/blob/main/docs/api.md) for
 exact signatures, accepted representations, normalization rules, and return behavior.
 
-| Domain           | Public exports                                                                                                                                                                                                                     |
-| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Identity         | `isNationalId`, `validateNationalId`, `isIqama`, `validateIqama`, `isSaudiId`, `validateSaudiId`, `getSaudiIdType`, `isBorderId`, `validateBorderId`                                                                               |
-| Banking          | `isSaudiIban`, `validateSaudiIban`, `normalizeIban`, `formatIban`                                                                                                                                                                  |
-| Business and tax | `isVatNumber`, `validateVatNumber`, `isTin`, `validateTin`, `isUnifiedNationalNumber`, `validateUnifiedNationalNumber`, `isCommercialRegistration`, `validateCommercialRegistration`                                               |
-| Telecom          | `isMobileNumber`, `validateMobileNumber`, `isLandlineNumber`, `validateLandlineNumber`, `isTollFreeNumber`, `validateTollFreeNumber`, `normalizePhoneNumber`                                                                       |
-| National Address | `isPostalCode`, `validatePostalCode`, `isBuildingNumber`, `validateBuildingNumber`, `isAdditionalNumber`, `validateAdditionalNumber`, `isShortAddress`, `validateShortAddress`, `normalizeShortAddress`, `validateNationalAddress` |
-| Types            | `ValidationErrorCode`, `ValidationResult`, `ValidationEvidence`, `NormalizedSaudiPhone`, `NationalAddress`, `NationalAddressValidationResult`                                                                                      |
+| Domain           | Public exports                                                                                                                                                                                                                                                 |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Identity         | `isNationalId`, `validateNationalId`, `isIqama`, `validateIqama`, `isSaudiId`, `validateSaudiId`, `getSaudiIdType`, `isBorderId`, `validateBorderId`                                                                                                           |
+| Banking          | `isSaudiIban`, `validateSaudiIban`, `canonicalizeIban`, `normalizeIban`, `formatIban`                                                                                                                                                                          |
+| Business and tax | `isVatNumber`, `validateVatNumber`, `isTin`, `validateTin`, `isUnifiedNationalNumber`, `validateUnifiedNationalNumber`, `isCommercialRegistration`, `validateCommercialRegistration`                                                                           |
+| Telecom          | `isMobileNumber`, `validateMobileNumber`, `isLandlineNumber`, `validateLandlineNumber`, `isTollFreeNumber`, `validateTollFreeNumber`, `canonicalizePhoneNumber`, `normalizePhoneNumber`                                                                        |
+| National Address | `isPostalCode`, `validatePostalCode`, `isBuildingNumber`, `validateBuildingNumber`, `isAdditionalNumber`, `validateAdditionalNumber`, `isShortAddress`, `validateShortAddress`, `canonicalizeShortAddress`, `normalizeShortAddress`, `validateNationalAddress` |
+| Types            | `ValidationErrorCode`, `ValidationResult`, `ValidationEvidence`, `NormalizedSaudiPhone`, `NationalAddress`, `NationalAddressValidationResult`                                                                                                                  |
 
 Every listed `validateX` also has a `validateXDetailed` export. The combined exports are
 `normalizeAndValidateIban`, `normalizeAndValidatePhoneNumber`, and
@@ -198,10 +195,11 @@ validateUnifiedNationalNumber("7123456789").valid; // true: structural result
 ### Telecom
 
 ```ts
-import { normalizePhoneNumber, validateMobileNumber } from "saudi-utils";
+import { canonicalizePhoneNumber, normalizePhoneNumber, validateMobileNumber } from "saudi-utils";
 
 validateMobileNumber("0501234567").valid; // true: no reachability or carrier claim
-normalizePhoneNumber("0501234567"); // "+966501234567"
+canonicalizePhoneNumber("0501234567"); // "+966501234567"
+normalizePhoneNumber("0501234567"); // { kind: "mobile", value: "+966501234567" }
 ```
 
 ### National Address
@@ -238,7 +236,7 @@ npm run check
 ```
 
 Available focused commands are `npm test`, `npm run test:coverage`, `npm run typecheck`,
-`npm run lint`, `npm run format:check`, and `npm run build`. Node.js 22 or newer is required.
+`npm run lint`, `npm run format:check`, and `npm run build`. Node.js 18 or newer can run the packed package; repository development/build tooling requires a newer Node version (use Node 24).
 
 ## Project policies
 

@@ -2,10 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import * as publicApi from "../src/index.js";
 
-type NormalizerName = Exclude<
-  Extract<keyof typeof publicApi, `normalize${string}`>,
-  `normalizeAndValidate${string}`
->;
+type NormalizerName = Extract<keyof typeof publicApi, `canonicalize${string}`>;
 
 type ContractCase = {
   input: unknown;
@@ -17,7 +14,7 @@ type ContractCase = {
 };
 
 const cases = {
-  normalizeIban: {
+  canonicalizeIban: {
     input: "sa03 8000 0000 6080 1016 7519",
     canonical: "SA0380000000608010167519",
     nonNormalizable: "SA03-8000-0000-6080-1016-7519",
@@ -25,7 +22,7 @@ const cases = {
     domainInvalidCanonical: "SA0380000000608010167518",
     validate: publicApi.validateSaudiIban,
   },
-  normalizePhoneNumber: {
+  canonicalizePhoneNumber: {
     input: "0501234567",
     canonical: "+966501234567",
     nonNormalizable: "050-123-4567",
@@ -33,7 +30,7 @@ const cases = {
     domainInvalidCanonical: "+966601234567",
     validate: publicApi.validateMobileNumber,
   },
-  normalizeShortAddress: {
+  canonicalizeShortAddress: {
     input: "abcd 0123",
     canonical: "ABCD0123",
     nonNormalizable: "abcd-0123",
@@ -45,9 +42,7 @@ const cases = {
 
 describe("public standalone normalizer contract", () => {
   it("has a case for every exported normalizeX function", () => {
-    const exported = Object.keys(publicApi).filter((name) =>
-      /^normalize(?!AndValidate)[A-Z]/.test(name),
-    );
+    const exported = Object.keys(publicApi).filter((name) => /^canonicalize[A-Z]/.test(name));
     expect(exported.sort()).toEqual(Object.keys(cases).sort());
   });
 

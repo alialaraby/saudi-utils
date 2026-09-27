@@ -5,7 +5,7 @@ import {
   isBuildingNumber,
   isPostalCode,
   isShortAddress,
-  normalizeShortAddress,
+  canonicalizeShortAddress,
   validateAdditionalNumber,
   validateBuildingNumber,
   validateNationalAddress,
@@ -178,8 +178,8 @@ describe("Short Address normalization", () => {
     ["wxyz 0000", "WXYZ0000"],
     ["abcd 12", "ABCD12"],
   ])("normalizes %s to %s", (input, expected) => {
-    expect(normalizeShortAddress(input)).toBe(expected);
-    expect(normalizeShortAddress(expected)).toBe(expected);
+    expect(canonicalizeShortAddress(input)).toBe(expected);
+    expect(canonicalizeShortAddress(expected)).toBe(expected);
   });
 
   it.each([
@@ -202,7 +202,7 @@ describe("Short Address normalization", () => {
     "ABC\u200bD0123",
     "ABCD\u00a00123",
   ])("rejects unsupported input %#", (value) => {
-    expect(normalizeShortAddress(value)).toBeNull();
+    expect(canonicalizeShortAddress(value)).toBeNull();
   });
 });
 

@@ -43,7 +43,7 @@ flowchart LR
 | Project/package name | `saudi-utils`, pending live npm registry availability verification | Final user-selected name; stop for an explicit scope/name decision if unavailable |
 | Language             | Strict TypeScript                                                  | First-class declarations and maintainable contracts                               |
 | Runtime modules      | ESM-only, `"type": "module"`                                       | One modern artifact; no dual-package hazards                                      |
-| Node support         | `>=22`; CI on 22, 24, 26 while supported                           | Current maintained releases                                                       |
+| Node support         | `>=18` runtime; tooling CI on 22, 24, 26                           | Current maintained releases                                                       |
 | Browser support      | Natural ESM compatibility; no Node built-ins                       | Pure functions work in modern bundlers/browsers                                   |
 | Build                | `tsc`, ES2022, NodeNext                                            | A bundler has no material V1 benefit                                              |
 | Runtime dependencies | None                                                               | Rules require only small deterministic algorithms                                 |
@@ -595,8 +595,8 @@ After approval, create the version/tag per `docs/releasing.md`; let the protecte
 
 ## Normalization contract update
 
-All public standalone normalizers (`normalizeIban`, `normalizePhoneNumber`, and `normalizeShortAddress`) return `string | null`. They produce canonical candidates without domain validation. The combined phone API retains its kind-tagged validated result.
+Public `canonicalizeIban`, `canonicalizePhoneNumber`, and `canonicalizeShortAddress` return `string | null` candidates without domain validation. Deprecated `normalizeIban`, `normalizePhoneNumber`, and `normalizeShortAddress` retain their v0.1.0 contracts; the phone result is kind-tagged.
 
 The v0.2.0 developer experience enhancements are complete: public TSDoc, `validateXDetailed`
-failures, and the three `normalizeAndValidateX` operations. The standardized normalization return
+failures, and the three `normalizeAndValidateX` operations. The standardized canonicalization return
 shape is implemented; normalization and validation remain separate responsibilities.

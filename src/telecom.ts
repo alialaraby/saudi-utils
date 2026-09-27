@@ -1,6 +1,6 @@
 import { isAsciiDigits } from "./internal/ascii.js";
 import { checkStringInput } from "./internal/input.js";
-import type { ValidationResult } from "./types.js";
+import type { NormalizedSaudiPhone, ValidationResult } from "./types.js";
 
 const NATIONAL_PHONE_LENGTH = 10;
 const E164_PHONE_LENGTH = 13;
@@ -144,14 +144,33 @@ export function isTollFreeNumber(value: unknown): value is string {
 }
 
 /**
- * Normalizes a supported phone representation without validating its prefix or length.
+ * Normalizes a supported phone representation and returns its validated kind and value.
  *
  * Mobile and landline accept national, +966, 966, or 00966 forms and return +966 form. Toll-free accepts national 800 form only. Whitespace, punctuation, extensions, and Unicode digits are rejected.
  *
  * @param value - Unknown input; only unseparated primitive ASCII strings in supported forms are accepted.
- * @returns The canonical string candidate, even when its prefix or length is invalid; null when the representation cannot be converted.
+ * @returns A kind-tagged validated phone value, or null when conversion or validation fails.
+ * @deprecated Use canonicalizePhoneNumber for transform-only normalization, then a phone validator when needed.
  */
-export function normalizePhoneNumber(value: unknown): string | null {
+export function normalizePhoneNumber(value: unknown): NormalizedSaudiPhone | null {
+  if (typeof value !== "string") return null;
+  if (validateTollFreeNumber(value).valid) {
+    return { kind: "toll-free", value: `800${value.slice(3)}` };
+  }
+
+  const candidate = normalizePhoneNumberInput(value);
+  if (candidate === null || !hasE164SaudiPrefix(candidate)) return null;
+  if (validateMobileNumber(candidate).valid) return { kind: "mobile", value: candidate };
+  if (validateLandlineNumber(candidate).valid) return { kind: "landline", value: candidate };
+  return null;
+}
+
+/**
+ * Converts a supported Saudi phone representation without validating its prefix or length.
+ * @param value - Primitive unseparated ASCII string in a supported national or country-code form.
+ * @returns A canonical string candidate, or null when conversion is unsupported.
+ */
+export function canonicalizePhoneNumber(value: unknown): string | null {
   return normalizePhoneNumberInput(value);
 }
 
