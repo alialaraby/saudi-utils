@@ -1,10 +1,17 @@
-export { formatIban, isSaudiIban, normalizeIban, validateSaudiIban } from "./banking.js";
+export {
+  canonicalizeIban,
+  formatIban,
+  isSaudiIban,
+  normalizeIban,
+  validateSaudiIban,
+} from "./banking.js";
 
 export {
   isAdditionalNumber,
   isBuildingNumber,
   isPostalCode,
   isShortAddress,
+  canonicalizeShortAddress,
   normalizeShortAddress,
   validateAdditionalNumber,
   validateBuildingNumber,
@@ -40,6 +47,7 @@ export {
   isLandlineNumber,
   isMobileNumber,
   isTollFreeNumber,
+  canonicalizePhoneNumber,
   normalizePhoneNumber,
   validateLandlineNumber,
   validateMobileNumber,

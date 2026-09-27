@@ -20,9 +20,9 @@ import {
   isUnifiedNationalNumber,
   isVatNumber,
   normalizeAndValidatePhoneNumber,
-  normalizeIban,
-  normalizePhoneNumber,
-  normalizeShortAddress,
+  canonicalizeIban,
+  canonicalizePhoneNumber,
+  canonicalizeShortAddress,
   validateAdditionalNumber,
   validateBorderId,
   validateBuildingNumber,
@@ -97,16 +97,16 @@ describe("cross-domain invariants", () => {
   });
 
   it("keeps every successful normalizer idempotent", () => {
-    const iban = normalizeIban("sa03 8000 0000 6080 1016 7519");
-    const phone = normalizePhoneNumber("00966501234567");
-    const shortAddress = normalizeShortAddress("abcd 0123");
+    const iban = canonicalizeIban("sa03 8000 0000 6080 1016 7519");
+    const phone = canonicalizePhoneNumber("00966501234567");
+    const shortAddress = canonicalizeShortAddress("abcd 0123");
 
     expect(iban).toBe(REFERENCE_SAUDI_IBAN);
-    expect(normalizeIban(iban)).toBe(iban);
+    expect(canonicalizeIban(iban)).toBe(iban);
     expect(phone).toBe("+966501234567");
-    expect(normalizePhoneNumber(phone)).toBe(phone);
+    expect(canonicalizePhoneNumber(phone)).toBe(phone);
     expect(shortAddress).toBe("ABCD0123");
-    expect(normalizeShortAddress(shortAddress)).toBe(shortAddress);
+    expect(canonicalizeShortAddress(shortAddress)).toBe(shortAddress);
     expect(formatIban(iban)).toBe("SA03 8000 0000 6080 1016 7519");
   });
 
@@ -145,7 +145,7 @@ describe("cross-domain invariants", () => {
   ] as const)(
     "keeps normalized phone kind %s aligned with its validator",
     (input, kind, value, validate) => {
-      const normalized = normalizePhoneNumber(input);
+      const normalized = canonicalizePhoneNumber(input);
 
       expect(normalized).toBe(value);
       expect(normalizeAndValidatePhoneNumber(input)).toEqual({

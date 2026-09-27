@@ -51,3 +51,32 @@ jobs:
           npm run docs:check
           npm run check
           npm run package:check
+
+      - name: Pack consumer artifact
+        if: matrix.node-version == '24'
+        run: npm pack --json
+
+      - name: Upload consumer artifact
+        if: matrix.node-version == '24'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: saudi-utils-package
+          path: saudi-utils-*.tgz
+
+  consumers:
+    name: Packed runtime on Node.js ${{ matrix.node-version }}
+    needs: verify
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: ["18", "20", "22", "24"]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: saudi-utils-package
+      - run: node scripts/check-packed-runtime.mjs ./saudi-utils-*.tgz
