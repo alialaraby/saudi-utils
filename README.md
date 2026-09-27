@@ -4,10 +4,14 @@
 normalization of common Saudi identity, banking, business, telecom, and National Address data.
 It provides deterministic errors, evidence-labelled rules, and no runtime dependencies.
 
-> [!IMPORTANT]
-> A successful result proves only the documented offline structure and, where stated, checksum.
-> It does **not** prove issuance, ownership, existence, activity, registration, account status,
-> address existence, phone reachability, or any current authoritative status.
+## What's new
+
+- Improved TSDoc in published declarations for IDE IntelliSense.
+- Opt-in `validateXDetailed()` functions add a machine-readable failure `code` and a short `message`.
+- `normalizeAndValidateIban()`, `normalizeAndValidatePhoneNumber()`, and
+  `normalizeAndValidateShortAddress()` combine conversion with detailed validation.
+- Every standalone `normalizeX()` returns `string | null`. Normalization produces a canonical
+  candidate; validation separately decides whether it meets domain rules.
 
 ## Installation
 
@@ -21,23 +25,24 @@ npm install saudi-utils
 There is no default export.
 
 ```ts
-import { formatIban, getSaudiIdType, normalizeIban, validateSaudiIban } from "saudi-utils";
+import {
+  isSaudiIban,
+  normalizeIban,
+  normalizeAndValidateIban,
+  validateSaudiIban,
+  validateSaudiIbanDetailed,
+} from "saudi-utils";
 
-getSaudiIdType("1000000008"); // "national-id" (synthetic checksum-valid example)
-
-const iban = normalizeIban("sa03 8000 0000 6080 1016 7519");
-// "SA0380000000608010167519"
-
-validateSaudiIban(iban);
+normalizeIban("sa03 8000 0000 6080 1016 7519"); // "SA0380000000608010167519"
+isSaudiIban("SA0380000000608010167519"); // true (boolean validation)
+validateSaudiIban("SA0380000000608010167518"); // { valid: false, code: "INVALID_CHECKSUM" }
+validateSaudiIbanDetailed("SA0380000000608010167518");
+// { valid: false, code: "INVALID_CHECKSUM", message: "Saudi IBAN has an invalid checksum." }
+normalizeAndValidateIban("sa03 8000 0000 6080 1016 7519");
 // { valid: true, value: "SA0380000000608010167519" }
-
-formatIban(iban);
-// "SA03 8000 0000 6080 1016 7519"
 ```
 
-The package exposes one side-effect-free ESM root. Pure named exports and
-`"sideEffects": false` support tree shaking. Runtime code uses standard JavaScript and has zero
-runtime dependencies.
+The package has one side-effect-free ESM root, supports tree shaking, and has zero runtime dependencies.
 
 ## Validation and normalization
 
@@ -45,22 +50,41 @@ Validators are deliberately strict. They accept `unknown`, but only primitive st
 valid identifiers. They do not trim, coerce, remove punctuation, change case, or translate
 Unicode numerals. Canonical numeric values use ASCII digits and preserve leading zeroes.
 
-Every standalone normalizer returns a canonical string directly, or `null` when its documented representation cannot be converted. Normalization does not validate checksums, prefixes, or lengths. Explicit normalizers accept only their documented variants:
+The four responsibilities have distinct return shapes:
+
+| Operation              | Example                            | Return                                                        |
+| ---------------------- | ---------------------------------- | ------------------------------------------------------------- |
+| Normalize              | `normalizeIban(input)`             | Canonical `string \| null`                                    |
+| Boolean validation     | `isSaudiIban(input)`               | `boolean`                                                     |
+| Detailed validation    | `validateSaudiIbanDetailed(input)` | `{ valid: true, value }` or `{ valid: false, code, message }` |
+| Normalize and validate | `normalizeAndValidateIban(input)`  | Detailed result; failures may include `normalizedValue`       |
+
+Standalone normalizers accept only their documented variants:
 
 - `normalizeIban` removes ASCII spaces and uppercases ASCII letters.
 - `normalizePhoneNumber` accepts specific unseparated Saudi national and country-code forms.
 - `normalizeShortAddress` uppercases ASCII letters and removes at most one permitted ASCII space.
 
-Normalizers do not validate domain rules: a canonical candidate may still have an invalid checksum, prefix, or length. They return `null` only when the documented representation cannot produce a meaningful candidate, and are idempotent after success.
+Normalization does not determine domain validity. A normalizable but invalid input can still return
+a normalized string; validation is responsible for determining validity:
+
+```ts
+normalizeIban("sa03 8000 0000 6080 1016 7518"); // "SA0380000000608010167518"
+normalizeAndValidateIban("sa03 8000 0000 6080 1016 7518");
+// { valid: false, code: "INVALID_CHECKSUM", message: "Saudi IBAN has an invalid checksum.", normalizedValue: "SA0380000000608010167518" }
+```
+
+Normalizers return `null` when the documented representation cannot produce a meaningful candidate,
+and are idempotent after success.
 For a single operation with structured errors, use `normalizeAndValidateIban`,
 `normalizeAndValidatePhoneNumber`, or `normalizeAndValidateShortAddress`. Each returns a validated
 canonical value on success, or a code and message on failure. When conversion produced a safe
-candidate, the failure also includes `normalizedValue`. See the [API reference](docs/api.md#normalize-and-validate-together).
+candidate, the failure also includes `normalizedValue`. See the [API reference](https://github.com/alialaraby/saudi-utils/blob/main/docs/api.md#normalize-and-validate-together).
 `formatIban` is only a formatter: it accepts a valid, canonical Saudi IBAN and returns `null` for
 lowercase, spaced, invalid, or non-Saudi input. Call `normalizeIban` first when normalization is
 required.
 
-Detailed validators return the shared result:
+Existing `validateX()` functions return the shared result:
 
 ```ts
 type ValidationResult =
@@ -77,7 +101,7 @@ Errors use deterministic precedence:
 6. `INVALID_CHECKSUM`
 
 `undefined`, `null`, and `""` are required failures. Whitespace is not silently treated as empty.
-Boolean `is*` helpers are thin wrappers around their detailed validators.
+Boolean `is*` helpers return the validity of the corresponding `validateX()` result.
 
 ## API reference
 
@@ -93,6 +117,10 @@ exact signatures, accepted representations, normalization rules, and return beha
 | Telecom          | `isMobileNumber`, `validateMobileNumber`, `isLandlineNumber`, `validateLandlineNumber`, `isTollFreeNumber`, `validateTollFreeNumber`, `normalizePhoneNumber`                                                                       |
 | National Address | `isPostalCode`, `validatePostalCode`, `isBuildingNumber`, `validateBuildingNumber`, `isAdditionalNumber`, `validateAdditionalNumber`, `isShortAddress`, `validateShortAddress`, `normalizeShortAddress`, `validateNationalAddress` |
 | Types            | `ValidationErrorCode`, `ValidationResult`, `ValidationEvidence`, `NormalizedSaudiPhone`, `NationalAddress`, `NationalAddressValidationResult`                                                                                      |
+
+Every listed `validateX` also has a `validateXDetailed` export. The combined exports are
+`normalizeAndValidateIban`, `normalizeAndValidatePhoneNumber`, and
+`normalizeAndValidateShortAddress`. Their shared result type is `DetailedValidationResult`.
 
 ### Canonical representations
 

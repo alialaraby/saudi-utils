@@ -596,3 +596,7 @@ After approval, create the version/tag per `docs/releasing.md`; let the protecte
 ## Normalization contract update
 
 All public standalone normalizers (`normalizeIban`, `normalizePhoneNumber`, and `normalizeShortAddress`) return `string | null`. They produce canonical candidates without domain validation. The combined phone API retains its kind-tagged validated result.
+
+The v0.2.0 developer experience enhancements are complete: public TSDoc, `validateXDetailed`
+failures, and the three `normalizeAndValidateX` operations. The standardized normalization return
+shape is implemented; normalization and validation remain separate responsibilities.
